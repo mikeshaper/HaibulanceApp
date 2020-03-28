@@ -114,14 +114,14 @@ public class ChooseRadiusActivity extends AppCompatActivity  implements View.OnC
         currentSession = new CurrentSession();
         currentUser = currentSession.getUser();
 
-        ArrayList<String> radiuses = new ArrayList<String>();
+        ArrayList<String> radiuses = new ArrayList<>();
         radiuses.add("all");
         radiuses.add("100m");
         radiuses.add("500m");
         radiuses.add("1km");
         radiuses.add("1.5km");
         radiuses.add("2km");
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_item, radiuses);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         radiusOptions.setAdapter(adapter);
@@ -243,7 +243,7 @@ public class ChooseRadiusActivity extends AppCompatActivity  implements View.OnC
                 GeoJsonSource polygonCircleSource = style.getSourceAs(TURF_CALCULATION_FILL_LAYER_GEOJSON_SOURCE_ID);
                 if (polygonCircleSource != null) {
                     polygonCircleSource.setGeoJson(Polygon.fromOuterInner(
-                            LineString.fromLngLats(TurfMeta.coordAll(polygonArea, false))));
+                            LineString.fromLngLats(TurfMeta.coordAll(polygonArea, false))));//
                 }
             }
         });
