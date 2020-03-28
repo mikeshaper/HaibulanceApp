@@ -86,7 +86,7 @@ public class ChooseRadiusActivity extends AppCompatActivity  implements View.OnC
     private Map<String, Integer> radiusDict;
     private String circleRadiusStr;
     private LatLng myLatLng;
-
+//
 
 
     private static final String TURF_CALCULATION_FILL_LAYER_GEOJSON_SOURCE_ID
