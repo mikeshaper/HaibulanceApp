@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:background="#27490C"
+    android:layout_height="match_parent"
+    tools:context=".ReportActivity"
+    xmlns:mapbox="http://schemas.android.com/apk/res-auto"
+    >
+
+    <ImageView
+        android:id="@+id/img_pickup"
+        android:layout_width="165dp"
+        android:layout_height="165dp"
+        android:layout_marginStart="185dp"
+        android:layout_marginLeft="185dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.475"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/mini_map"
+        app:layout_constraintVertical_bias="0.0"
+        app:srcCompat="@drawable/animal_icon" />
+
+    <com.mapbox.mapboxsdk.maps.MapView
+        android:id="@+id/mini_map"
+        android:layout_width="165dp"
+        android:layout_height="165dp"
+        android:layout_marginTop="70dp"
+        android:layout_marginEnd="185dp"
+        android:layout_marginRight="185dp"
+        mapbox:layout_constraintBottom_toBottomOf="parent"
+        mapbox:layout_constraintEnd_toEndOf="parent"
+        mapbox:layout_constraintHorizontal_bias="0.492"
+        mapbox:layout_constraintStart_toStartOf="parent"
+        mapbox:layout_constraintTop_toTopOf="parent"
+        mapbox:layout_constraintVertical_bias="0.2"
+        mapbox:mapbox_cameraZoom="12">
+    </com.mapbox.mapboxsdk.maps.MapView>
+
+    <EditText
+        android:id="@+id/specie_edtxt"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginLeft="32dp"
+        android:layout_marginTop="60dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginRight="32dp"
+        android:background="@drawable/edtxt_rounded"
+        android:ems="10"
+        android:hint="סוג החיה"
+        android:paddingRight="16dp"
+        android:paddingLeft="16dp"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/mini_map" />
+
+    <EditText
+        android:id="@+id/dscr_edtxt"
+        android:layout_width="0dp"
+        android:layout_height="100dp"
+        android:layout_marginBottom="160dp"
+        android:background="@drawable/edtxt_rounded"
+        android:ems="10"
+        android:hint="תיאור המצב"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingBottom="50dp"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/specie_edtxt"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/specie_edtxt"
+        app:layout_constraintTop_toBottomOf="@+id/regi_name_edtxt"
+        app:layout_constraintVertical_bias="0.195" />
+
+    <Button
+        android:id="@+id/report_butt"
+        android:layout_width="312dp"
+        android:layout_height="64dp"
+        android:background="@drawable/button_rounded"
+        android:text="דיווח"
+        android:textSize="24dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.494"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/dscr_edtxt"
+        app:layout_constraintVertical_bias="0.512" />
+
+    <TextView
+        android:id="@+id/rep_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:fontFamily="casual"
+        android:text="דיווח על חיה"
+        android:textColor="#FFFFFF"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/hour_tv"
+        android:layout_width="161dp"
+        android:layout_height="wrap_content"
+        android:text="00:00"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#FFFFFF"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toTopOf="@+id/mini_map"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.12"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.826" />
+
+    <TextView
+        android:id="@+id/report_locname"
+        android:layout_width="163dp"
+        android:layout_height="43dp"
+        android:layout_marginTop="8dp"
+        android:text="location name"
+        android:textColor="#D7FFFFFF"
+        app:layout_constraintEnd_toEndOf="@+id/mini_map"
+        app:layout_constraintHorizontal_bias="0.131"
+        app:layout_constraintStart_toStartOf="@+id/mini_map"
+        app:layout_constraintTop_toBottomOf="@+id/mini_map" />
+</androidx.constraintlayout.widget.ConstraintLayout>

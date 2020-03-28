@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">Java_pilot</string>
+    <string name="title_activity_google_sign_in">GoogleSignInActivity</string>
+    <string name="title_activity_login2">Sign in</string>
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_sign_in">Sign in or register</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="welcome">"Welcome !"</string>
+    <string name="invalid_username">Not a valid username</string>
+    <string name="invalid_password">Password must be >5 characters</string>
+    <string name="polygon_circle_transformation_circle_steps">polygon circle transformation circle steps</string>
+    <string name="polygon_circle_transformation_circle_radius">polygon_circle_transformation_circle_radius</string>
+    <string name="polygon_circle_transformation_click_map_instruction">polygon_circle_transformation_click_map_instruction</string>
+    <string name="polygon_circle_transformation_circle_distance_units">polygon_circle_transformation_circle_distance_units</string>
+    <string name="access_token">"pk.eyJ1IjoibWlrZTIxMiIsImEiOiJjazRia3ZqdjgwMnFhM2VtMGhmdnM2czRpIn0.8bWP4oqmBCu9EXzL6I9_HA"</string>
+
+</resources>

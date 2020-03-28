@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#27490C"
+    tools:context=".RegisterActivity">
+
+
+    <EditText
+        android:id="@+id/regi_name_edtxt"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginLeft="32dp"
+        android:layout_marginTop="96dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginRight="32dp"
+        android:background="@drawable/edtxt_rounded"
+        android:ems="10"
+        android:hint="Name"
+        android:inputType="textPersonName"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/regi_email_edtxt"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="24dp"
+        android:background="@drawable/edtxt_rounded"
+        android:ems="10"
+        android:hint="Email"
+        android:inputType="textEmailAddress"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        app:layout_constraintEnd_toEndOf="@+id/regi_name_edtxt"
+        app:layout_constraintStart_toStartOf="@+id/regi_name_edtxt"
+        app:layout_constraintTop_toBottomOf="@+id/regi_name_edtxt" />
+
+    <EditText
+        android:id="@+id/reri_password_edtxt"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="24dp"
+        android:background="@drawable/edtxt_rounded"
+        android:ems="10"
+        android:hint="Password"
+        android:inputType="textPassword"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        app:layout_constraintEnd_toEndOf="@+id/regi_email_edtxt"
+        app:layout_constraintStart_toStartOf="@+id/regi_email_edtxt"
+        app:layout_constraintTop_toBottomOf="@+id/regi_email_edtxt" />
+
+    <fragment
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="321dp"
+        android:layout_height="266dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/already_have_textView"
+        app:layout_constraintStart_toStartOf="@+id/already_have_textView"
+        app:layout_constraintTop_toBottomOf="@+id/already_have_textView"
+        app:layout_constraintVertical_bias="0.384" />
+
+    <Button
+        android:id="@+id/regi_button_reg"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:background="@drawable/button_rounded"
+        android:text="REGISTER"
+        app:layout_constraintEnd_toEndOf="@+id/reri_password_edtxt"
+        app:layout_constraintStart_toStartOf="@+id/reri_password_edtxt"
+        app:layout_constraintTop_toBottomOf="@+id/reri_password_edtxt" />
+
+    <TextView
+        android:id="@+id/already_have_textView"
+        android:layout_width="163dp"
+        android:layout_height="25dp"
+        android:layout_marginTop="40dp"
+        android:text="Already have an account?"
+        android:textColor="#B5FFFFFF"
+        app:layout_constraintEnd_toEndOf="@+id/regi_button_reg"
+        app:layout_constraintStart_toStartOf="@+id/regi_button_reg"
+        app:layout_constraintTop_toBottomOf="@+id/regi_button_reg" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:fontFamily="casual"
+        android:text="REGISTRATION"
+        android:textColor="#FFFFFF"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

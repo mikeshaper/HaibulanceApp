@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/home_button"
+        android:icon="@drawable/haibu_icon"
+        android:title="home_button"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/radius"
+        android:title="בחר טווח התראות"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/more"
+        android:title="הגדרות נוספות"
+        app:showAsAction="never">
+
+        <menu>
+
+            <item
+                android:id="@+id/subitem1"
+                android:title="פרטי משתמש" />
+            <item
+                android:id="@+id/subitem2"
+                android:title="ערוך פרטים" />
+
+        </menu>
+
+    </item>
+</menu>

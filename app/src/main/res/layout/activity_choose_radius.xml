@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ChooseRadiusActivity"
+    android:background="#27490C"
+    xmlns:mapbox="http://schemas.android.com/apk/res-auto">
+
+
+    <com.mapbox.mapboxsdk.maps.MapView
+        android:id="@+id/radius_map"
+        android:layout_width="408dp"
+        android:layout_height="526dp"
+        android:layout_marginTop="32dp"
+        mapbox:layout_constraintBottom_toBottomOf="parent"
+        mapbox:layout_constraintEnd_toEndOf="parent"
+        mapbox:layout_constraintHorizontal_bias="0.492"
+        mapbox:layout_constraintStart_toStartOf="parent"
+        mapbox:layout_constraintTop_toTopOf="parent"
+        mapbox:layout_constraintVertical_bias="0.2"
+        mapbox:mapbox_cameraZoom="12">
+
+    </com.mapbox.mapboxsdk.maps.MapView>
+
+    <Button
+        android:id="@+id/radius_ok_butt"
+        android:layout_width="239dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/button_rounded"
+        android:text="הגדר רדיוס"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/radius_map" />
+
+    <Button
+        android:id="@+id/radius_cancle_butt"
+        android:layout_width="239dp"
+        android:layout_height="48dp"
+        android:background="@drawable/button_rounded"
+        android:text="ביטול"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/radius_ok_butt" />
+
+    <Spinner
+        android:id="@+id/radius_spinner"
+        android:layout_width="146dp"
+        android:layout_height="38dp"
+        app:layout_constraintBottom_toTopOf="@+id/radius_map"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.116"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

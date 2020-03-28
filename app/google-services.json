@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "724112482279",
+    "firebase_url": "https://haibulance-524de.firebaseio.com",
+    "project_id": "haibulance-524de",
+    "storage_bucket": "haibulance-524de.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:724112482279:android:1aaa5279fc99690a94e742",
+        "android_client_info": {
+          "package_name": "com.example.java_pilot"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "724112482279-it95of7h544uutoa9fc7clo3m27qepvh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.java_pilot",
+            "certificate_hash": "ffe038d7b546746088c562e18a74d235c97d5567"
+          }
+        },
+        {
+          "client_id": "724112482279-i0g6f84et1aau231jhvvvuq9pjujqp4t.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA3OHwPYHY5Rlri8qsGSnD978V9j9y8xwc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "724112482279-i0g6f84et1aau231jhvvvuq9pjujqp4t.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
