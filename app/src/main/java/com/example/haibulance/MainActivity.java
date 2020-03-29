@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -106,7 +105,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private String circleUnit = UNIT_METERS;
 
     private static final int RADIUS_CODE = 1;
-
+    private final int MENU_CODE = 2;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
@@ -114,11 +113,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         Mapbox.getInstance(this, getString(R.string.access_token));
         setContentView(R.layout.activity_main);
-        getUserFromDatabase();
 
         currentSession = new CurrentSession();
-        currentUser = currentSession.getUser();
-        circleRadius = currentUser.getReportsRadius();
+
+        getUserFromDatabase();
+
+        //currentUser = currentSession.getUser();
+
         // get the Firebase instance
         db = FirebaseDatabase.getInstance();
 
@@ -136,6 +137,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(MainActivity.this);
+
         LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
@@ -147,7 +149,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             // for Activity#requestPermissions for more details.
             return;
         }
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
         locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
+        myLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
     }
 
     @Override
@@ -177,7 +181,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onMapReady(@NonNull MapboxMap mapboxMap) {
         map = mapboxMap;
         locationComponent = map.getLocationComponent();
-
         mapboxMap.setStyle(new Style.Builder().fromUri(Style.MAPBOX_STREETS)
                 .withImage(CIRCLE_CENTER_ICON_ID, BitmapUtils.getBitmapFromDrawable(
                         getResources().getDrawable(R.drawable.blue_marker)))
@@ -187,29 +190,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         iconImage(CIRCLE_CENTER_ICON_ID),
                         iconIgnorePlacement(true),
                         iconAllowOverlap(true),
-                        iconOffset(new Float[] {0f, -4f}),
-                        fillColor(Color.GREEN)
+                        iconOffset(new Float[] {0f, -4f})
                 )),  new Style.OnStyleLoaded() {
             @RequiresApi(api = Build.VERSION_CODES.M)
             @Override
             public void onStyleLoaded(@NonNull Style loadedStyle) {
                 style = loadedStyle;
                 enableLocationComponent(style);
+                initPolygonCircleFillLayer();
 
-                LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-                if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED || checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    return;
-                }
-                Criteria criteria = new Criteria();
-                String provider = lm.getBestProvider(criteria, false);
-                lm.requestLocationUpdates(provider, 400, 1, MainActivity.this);
-                //myLocation = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                //drawPolygonCircle(Point.fromLngLat(myLocation.getLongitude(), myLocation.getLatitude()));
-
-                //initPolygonCircleFillLayer();
-                //while (myLocation == null) { Toast.makeText(MainActivity.this, "problem with finding location...", Toast.LENGTH_LONG).show(); }
-                //GeoJsonSource geoJsonSource = new GeoJsonSource("circle-source", Point.fromLngLat(myLocation.getLongitude(), myLocation.getLatitude()));
-                //style.addSource(geoJsonSource);
+                GeoJsonSource geoJsonSource = new GeoJsonSource("circle-source",
+                        Point.fromLngLat(32.0452857, 34.82474));
+                style.addSource(geoJsonSource);
 
                 CircleLayer circleLayer = new CircleLayer("circle-layer", "circle-source");
                 circleLayer.setProperties(
@@ -218,7 +210,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         PropertyFactory.circleColor(Color.argb(1, 55, 148, 179)));
                 style.addLayer(circleLayer);
 
-                addMarkers(mapboxMap);
+                //drawPolygonCircle(myLocation);
+
+                addMarkers();
                 mapboxMap.setOnMarkerClickListener(new MapboxMap.OnMarkerClickListener() {
                     @Override
                     public boolean onMarkerClick(@NonNull Marker marker) {
@@ -257,7 +251,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         return true;
                     }
                 });
-
             }
         });
     }
@@ -290,6 +283,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     }
                 }
                 if (makeRep[0] && !repActStarted){
+                    Log.d("dclicked", "starting report...");
                     repActStarted = true;
                     Intent intent = new Intent(MainActivity.this, ReportActivity.class);
                     startActivityForResult(intent, 0);
@@ -302,7 +296,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         };
         mDatabase.addValueEventListener(findReportListener);
     }
-
 
     public boolean createCloseRepDialog(String repTxt) {
         final boolean[] makeRep = {true};
@@ -339,25 +332,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return makeRep[0];
     }
 
-    public void addMarkers(@NonNull MapboxMap mapboxMap){
+    public void addMarkers(){
+        //if (myLocation == null) return;
         mDatabase = FirebaseDatabase.getInstance().getReference("reports");
         ValueEventListener reportListener = new ValueEventListener() {
             @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 // Get Report object and use the values to update the UI
-                mapboxMap.clear();
+                map.clear();
                 for (DataSnapshot ds: dataSnapshot.getChildren()) {
                     Report rep = ds.getValue(Report.class);
                     float repAge = rep.getRawTime().ageInHrs();
                     LatLng hospitalLoc = new LatLng(32.0452857, 34.82474); ////המיקום של שער הספארי
                     LatLng myLatLng = new LatLng(myLocation.getLatitude(), myLocation.getLongitude());
-                    boolean inRadius = currentUser.getReportsRadius() != 0 && rep.distanceFrom(myLatLng) > currentUser.getReportsRadius();
-                    if (repAge > 24.0 || !rep.getStatus().equals("unpicked") || rep.sameLoc(hospitalLoc) || inRadius){Log.d("repfaild", String.format("age: %s, status: %s", repAge, rep.getStatus()));}
-                    Marker marker = mapboxMap.addMarker(new MarkerOptions()
-                            .icon(IconFactory.getInstance(MainActivity.this).fromResource(rep.iconColor()))
-                            .position(rep.getLocation())
-                            .title(rep.ToString()));
+                    boolean inRadius = currentUser.RepInRad(rep, myLatLng);
+                    if (repAge > 24.0 || rep.getStatus().equals("caseClosed") || rep.sameLoc(hospitalLoc) || !inRadius){Log.d("repfaild", String.format("age: %s, status: %s", repAge, rep.getStatus()));}
+                    else {
+                        Marker marker = map.addMarker(new MarkerOptions()
+                                .icon(IconFactory.getInstance(MainActivity.this).fromResource(rep.iconColor()))
+                                .position(rep.getLocation())
+                                .title(rep.ToString()));
+                    }
                 }
             }
 
@@ -372,34 +368,32 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void getUserFromDatabase(){
         firebaseAuth = FirebaseAuth.getInstance();
         DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference();
-        DatabaseReference membersRef = rootRef.child("users");
+        DatabaseReference membersRef = rootRef.child("users").child(firebaseAuth.getUid());
         ValueEventListener valueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                for(DataSnapshot ds : dataSnapshot.getChildren()) {
-                    //DatabaseReference userIdRef = FirebaseDatabase.getInstance().getReference().child(firebaseAuth.getCurrentUser().getUid());
-                    if (ds.getKey().equals(firebaseAuth.getCurrentUser().getUid())) {
-                        User user = ds.getValue(User.class);
-                        user.setDatabaseKey(firebaseAuth.getCurrentUser().getUid());
-                        currentSession.setUser(user);
-                        Log.d("checkUser", currentSession.getUser().ToString());
-                    }
-                }
+                currentUser = dataSnapshot.getValue(User.class);
+                currentUser.setDatabaseKey(firebaseAuth.getCurrentUser().getUid());
+                currentSession.setUser(currentUser);
+                circleRadius = currentUser.getReportsRadius();
+                drawPolygonCircle(myLocation);
+                Log.d("checkUser", currentSession.getUser().ToString());
             }
+
             @Override
             public void onCancelled(DatabaseError databaseError) {}
         };
         membersRef.addListenerForSingleValueEvent(valueEventListener);
     }
 
-
     /**
      * Update the {@link FillLayer} based on the GeoJSON retrieved via
      * {@link #getTurfPolygon(Point, double, int, String)}.
      *
-     * @param circleCenter the center coordinate to be used in the Turf calculation.
+     * @param loc the center coordinate to be used in the Turf calculation.
      */
-    private void drawPolygonCircle(Point circleCenter) {
+    private void drawPolygonCircle(Location loc) {
+        Point circleCenter = Point.fromLngLat(loc.getLongitude(), loc.getLatitude());
         map.getStyle(new Style.OnStyleLoaded() {
             @Override
             public void onStyleLoaded(@NonNull Style style) {
@@ -441,7 +435,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         TURF_CALCULATION_FILL_LAYER_GEOJSON_SOURCE_ID);
                 fillLayer.setProperties(
                         fillColor(Color.parseColor("#f5425d")),
-                        fillOpacity(.7f));
+                        fillOpacity(.7f),
+                        fillColor(Color.GREEN));
+
                 style.addLayerBelow(fillLayer, CIRCLE_CENTER_LAYER_ID);
             }
         });
@@ -602,11 +598,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
-            case RADIUS_CODE:
+            case MENU_CODE:
                 map.clear();
-                addMarkers(map);
-                //enableLocationComponent(style);
-                //drawPolygonCircle(Point.fromLngLat(myLocation.getLongitude(), myLocation.getLatitude()));
+                addMarkers();
+                circleRadius = currentUser.getReportsRadius();
+                drawPolygonCircle(myLocation);
+                currentSession.setMenuActivityFinished(false);
         }
     }
 
@@ -623,21 +620,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.home_button:
                 //Intent intent = new Intent(this, MainActivity.class);
                 //startActivity(intent);
-                //finish();
                 return true;
             case R.id.radius:
                 Intent intent1 = new Intent(this, ChooseRadiusActivity.class);
-                startActivity(intent1);
+                startActivityForResult(intent1, MENU_CODE);
                 return true;
             case R.id.more:
                 return true;
-            case R.id.subitem1:
+            case R.id.detailsItem:
                 Intent intent2 = new Intent(this, UserDetailsActivity.class);
-                startActivity(intent2);
+                startActivityForResult(intent2, MENU_CODE);
                 return true;
-            case R.id.subitem2:
+            case R.id.edDetailsItem:
                 Intent intent3 = new Intent(this, EditDetailsActivity.class);
-                startActivity(intent3);
+                startActivityForResult(intent3, MENU_CODE);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -651,19 +647,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onLocationChanged(Location location) {
         myLocation = location;
-        drawPolygonCircle(Point.fromLngLat(myLocation.getLongitude(), myLocation.getLatitude()));
+        map.clear();
+        addMarkers();
+        drawPolygonCircle(location);
     }
-
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
 
     }
-
     @Override
     public void onProviderEnabled(String provider) {
-
     }
-
     @Override
     public void onProviderDisabled(String provider) {
 

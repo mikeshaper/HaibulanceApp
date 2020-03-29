@@ -470,11 +470,11 @@ public class ChooseDestActivity extends AppCompatActivity implements  View.OnCli
                 return true;
             case R.id.more:
                 return true;
-            case R.id.subitem1:
+            case R.id.detailsItem:
                 Intent intent2 = new Intent(this, UserDetailsActivity.class);
                 startActivity(intent2);
                 return true;
-            case R.id.subitem2:
+            case R.id.edDetailsItem:
                 Intent intent3 = new Intent(this, EditDetailsActivity.class);
                 startActivity(intent3);
                 return true;

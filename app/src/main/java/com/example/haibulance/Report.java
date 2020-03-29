@@ -52,7 +52,7 @@ public class Report{
             if (repAge < 3) return R.drawable.blue_marker;
             return R.drawable.yellow_marker;
         }
-        return R.drawable.red_marker;
+        return R.drawable.mapbox_marker_icon_default;
     }
     public RepTime getRawTime() {
         return rawTime;

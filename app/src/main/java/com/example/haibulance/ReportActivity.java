@@ -11,7 +11,6 @@ import android.graphics.Bitmap;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Build;
@@ -70,7 +69,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-public class ReportActivity extends AppCompatActivity implements View.OnClickListener, OnMapReadyCallback, PermissionsListener, LocationListener {
+public class ReportActivity extends AppCompatActivity implements View.OnClickListener, OnMapReadyCallback, PermissionsListener {
 
     private static final int CAMERA_REQUEST_CODE = 1;
     private static final int LOCATION_REQUEST_CODE = 3;
@@ -78,6 +77,7 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
     private static final int RSTORAGE_REQUEST_CODE = 4;
     static final int REQUEST_IMAGE_CAPTURE = 5;
     private final int PICK_IMAGE_REQUEST = 6;
+    private final int MENU_CODE = 7;
 
 
     private TextView hour_;
@@ -147,20 +147,18 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
         image.setOnClickListener(this);
         locName.setOnClickListener(this);
 
-
         LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    Activity#requestPermissions
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // here to request the missing permissions, and then overriding
             //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
             //                                          int[] grantResults)
             // to handle the case where the user grants the permission. See the documentation
-            // for Activity#requestPermissions for more details.
+            // for ActivityCompat#requestPermissions for more details.
             return;
         }
-        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, (LocationListener) this);
-
+        Location myLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        latLng.setLatitude(myLocation.getLatitude());
+        latLng.setLongitude(myLocation.getLongitude());
     }
 
     @Override
@@ -171,6 +169,33 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
         else if (view == image) {
                 createIMGDialog();
         }
+    }
+
+    @Override
+    @SuppressWarnings( {"MissingPermission"})
+    public void onMapReady(@NonNull MapboxMap mapboxMap) {
+        map = mapboxMap;
+        mapboxMap.setStyle(Style.MAPBOX_STREETS, new Style.OnStyleLoaded() {
+            @Override
+            public void onStyleLoaded(@NonNull Style style) {
+                enableLocationComponent(style);
+                //find my location
+                //LocationManager lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+                //Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+
+                addMarker(map);
+
+                //find location name
+                try {
+                    List<Address> results = geo.getFromLocation(latLng.getLatitude(), latLng.getLongitude(), 1);
+                    Address address = results.get(0);
+                    locnameStr = address.getAddressLine(0);
+                    locName.setText(locnameStr);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
     public void createIMGDialog() {
@@ -328,34 +353,13 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
                         e.printStackTrace();
                     }
                 }
-        }
-    }
 
-    @Override
-    @SuppressWarnings( {"MissingPermission"})
-    public void onMapReady(@NonNull MapboxMap mapboxMap) {
-        map = mapboxMap;
-        mapboxMap.setStyle(Style.MAPBOX_STREETS, new Style.OnStyleLoaded() {
-            @Override
-            public void onStyleLoaded(@NonNull Style style) {
-                enableLocationComponent(style);
-                //find my location
-                //LocationManager lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
-                //Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-
-                addMarker(map);
-
-                //find location name
-                try {
-                    List<Address> results = geo.getFromLocation(latLng.getLatitude(), latLng.getLongitude(), 1);
-                    Address address = results.get(0);
-                    locnameStr = address.getAddressLine(0);
-                    locName.setText(locnameStr);
-                } catch (IOException e) {
-                    e.printStackTrace();
+            case MENU_CODE:
+                if (currentSession.isMenuActivityFinished()) {
+                    currentSession.setMenuActivityFinished(false);
+                    finish();
                 }
-            }
-        });
+        }
     }
 
     public void make_report() {
@@ -501,7 +505,6 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
         }
         return true;
     }
-
     private boolean checkRStoragePermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -611,17 +614,17 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
                 return true;
             case R.id.radius:
                 Intent intent1 = new Intent(this, ChooseRadiusActivity.class);
-                startActivity(intent1);
+                startActivityForResult(intent1, MENU_CODE);
                 return true;
             case R.id.more:
                 return true;
-            case R.id.subitem1:
+            case R.id.detailsItem:
                 Intent intent2 = new Intent(this, UserDetailsActivity.class);
-                startActivity(intent2);
+                startActivityForResult(intent2, MENU_CODE);
                 return true;
-            case R.id.subitem2:
+            case R.id.edDetailsItem:
                 Intent intent3 = new Intent(this, EditDetailsActivity.class);
-                startActivity(intent3);
+                startActivityForResult(intent3, MENU_CODE);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -635,24 +638,4 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
         finish();
     }
 
-    @Override
-    public void onLocationChanged(Location location) {
-        latLng.setLatitude(location.getLatitude());
-        latLng.setLongitude(location.getLongitude());
-    }
-
-    @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {
-
-    }
-
-    @Override
-    public void onProviderEnabled(String provider) {
-
-    }
-
-    @Override
-    public void onProviderDisabled(String provider) {
-
-    }
 }

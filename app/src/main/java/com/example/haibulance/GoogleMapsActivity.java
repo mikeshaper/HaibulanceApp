@@ -173,9 +173,9 @@ public class GoogleMapsActivity extends AppCompatActivity implements OnMapReadyC
                 return true;
             case R.id.more:
                 return true;
-            case R.id.subitem1:
+            case R.id.detailsItem:
                 return true;
-            case R.id.subitem2:
+            case R.id.edDetailsItem:
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

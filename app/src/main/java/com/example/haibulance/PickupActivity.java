@@ -50,6 +50,7 @@ public class PickupActivity extends AppCompatActivity implements View.OnClickLis
 
     private static final int NAVI_CODE = 1;
     private static final int CHOOSE_DEST_CODE = 2;
+    private final int MENU_CODE = 3;
 
 
     private MapView mapView;
@@ -212,6 +213,8 @@ public class PickupActivity extends AppCompatActivity implements View.OnClickLis
                 }
             case NAVI_CODE:
                 if (rep.getStatus() == "picked") finish();
+            case MENU_CODE:
+                if (currentSession.isMenuActivityFinished()) finish();
         }
     }
 
@@ -312,19 +315,22 @@ public class PickupActivity extends AppCompatActivity implements View.OnClickLis
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()){
             case R.id.home_button:
-                //Intent intent = new Intent(this, MainActivity.class);
-                //startActivity(intent);
+                currentSession.setMenuActivityFinished(true);
                 finish();
                 return true;
             case R.id.radius:
-                Intent intent1 = new Intent(this, UsersList.class);
-                startActivity(intent1);
+                Intent intent1 = new Intent(this, ChooseRadiusActivity.class);
+                startActivityForResult(intent1, MENU_CODE);
                 return true;
             case R.id.more:
                 return true;
-            case R.id.subitem1:
+            case R.id.detailsItem:
+                Intent intent2 = new Intent(this, UserDetailsActivity.class);
+                startActivityForResult(intent2, MENU_CODE);
                 return true;
-            case R.id.subitem2:
+            case R.id.edDetailsItem:
+                Intent intent3 = new Intent(this, EditDetailsActivity.class);
+                startActivityForResult(intent3, MENU_CODE);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

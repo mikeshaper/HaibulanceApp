@@ -83,8 +83,6 @@ public class EditDetailsActivity extends AppCompatActivity implements View.OnCli
         }
     }
 
-
-
     public void updateDtails(){
         if (email.getText() == null) {
             Toast.makeText(EditDetailsActivity.this, "Please enter Email", Toast.LENGTH_LONG).show();
@@ -150,6 +148,18 @@ public class EditDetailsActivity extends AppCompatActivity implements View.OnCli
 
 
     @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case MENU_CODE:
+                if (currentSession.isMenuActivityFinished()) {
+                    finish();
+                }
+        }
+    }
+
+    private final int MENU_CODE = 1;
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.items_menu, menu);
@@ -159,29 +169,29 @@ public class EditDetailsActivity extends AppCompatActivity implements View.OnCli
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()){
             case R.id.home_button:
-                Intent intent = new Intent(this, MainActivity.class);
-                startActivity(intent);
+                //Intent intent = new Intent(this, MainActivity.class);
+                //startActivity(intent);
+                currentSession.setMenuActivityFinished(true);
                 finish();
                 return true;
             case R.id.radius:
                 Intent intent1 = new Intent(this, ChooseRadiusActivity.class);
-                startActivity(intent1);
+                startActivityForResult(intent1, MENU_CODE);
                 return true;
             case R.id.more:
                 return true;
-            case R.id.subitem1:
+            case R.id.detailsItem:
                 Intent intent2 = new Intent(this, UserDetailsActivity.class);
-                startActivity(intent2);
+                startActivityForResult(intent2, MENU_CODE);
                 return true;
-            case R.id.subitem2:
+            case R.id.edDetailsItem:
                 //Intent intent3 = new Intent(this, EditDetailsActivity.class);
-                //startActivity(intent3);
+                //startActivityForResult(intent3, MENU_CODE);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
-
 
 }
 

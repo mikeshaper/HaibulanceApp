@@ -121,6 +121,8 @@ public class NaviActivity extends AppCompatActivity implements OnMapReadyCallbac
         //FirebaseDatabase.getInstance().getReference("reports").child(currentRep.getDatabaseKey()).child("status").setValue("picked");
         //FirebaseDatabase.getInstance().getReference("reports").child(currentRep.getDatabaseKey()).child("location").setValue(destination);
         currentRep._setStatus("picked");
+        LatLng hospitalLoc = new LatLng(32.0452857, 34.82474); ////המיקום של שער הספארי
+        if(destination == hospitalLoc) currentRep._setStatus("caseClosed");
         currentRep._setLocation(destination);
         currentSession.getUser().addPickup();
         boolean simulateRoute = true;
@@ -288,11 +290,11 @@ public class NaviActivity extends AppCompatActivity implements OnMapReadyCallbac
                 return true;
             case R.id.more:
                 return true;
-            case R.id.subitem1:
+            case R.id.detailsItem:
                 Intent intent2 = new Intent(this, UserDetailsActivity.class);
                 startActivity(intent2);
                 return true;
-            case R.id.subitem2:
+            case R.id.edDetailsItem:
                 Intent intent3 = new Intent(this, EditDetailsActivity.class);
                 startActivity(intent3);
                 return true;

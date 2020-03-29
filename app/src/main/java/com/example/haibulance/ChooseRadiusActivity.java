@@ -85,9 +85,8 @@ public class ChooseRadiusActivity extends AppCompatActivity  implements View.OnC
     private User currentUser;
     private Map<String, Integer> radiusDict;
     private String circleRadiusStr;
-    private LatLng myLatLng;
-//
-
+    //private LatLng myLatLng;
+    private Location myLocation;
 
     private static final String TURF_CALCULATION_FILL_LAYER_GEOJSON_SOURCE_ID
             = "TURF_CALCULATION_FILL_LAYER_GEOJSON_SOURCE_ID";
@@ -96,8 +95,10 @@ public class ChooseRadiusActivity extends AppCompatActivity  implements View.OnC
     private static final String CIRCLE_CENTER_ICON_ID = "CIRCLE_CENTER_ICON_ID";
     private static final String CIRCLE_CENTER_LAYER_ID = "CIRCLE_CENTER_LAYER_ID";
     private int circleSteps = 180;
-    private int circleRadius = 1000;
+    private int circleRadius = 0;
     private String circleUnit = UNIT_METERS;
+
+    private final int MENU_CODE = 1;
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -113,6 +114,7 @@ public class ChooseRadiusActivity extends AppCompatActivity  implements View.OnC
 
         currentSession = new CurrentSession();
         currentUser = currentSession.getUser();
+        //circleRadius = currentUser.getReportsRadius();
 
         ArrayList<String> radiuses = new ArrayList<>();
         radiuses.add("all");
@@ -134,7 +136,6 @@ public class ChooseRadiusActivity extends AppCompatActivity  implements View.OnC
         radiusDict.put("2km", 2000);
         radiusDict.put("all", 0);
 
-
         okButt.setOnClickListener(ChooseRadiusActivity.this);
         cancleButt.setOnClickListener(ChooseRadiusActivity.this);
 
@@ -149,11 +150,11 @@ public class ChooseRadiusActivity extends AppCompatActivity  implements View.OnC
             // for Activity#requestPermissions for more details.
             return;
         }
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, (LocationListener) this);
         locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, (LocationListener) this);
 
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync( ChooseRadiusActivity.this);
-
     }
 
     @Override
@@ -190,12 +191,6 @@ public class ChooseRadiusActivity extends AppCompatActivity  implements View.OnC
             @Override
             public void onStyleLoaded(@NonNull Style style) {
                 enableLocationComponent(style);
-
-                LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-                if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    return;
-                }
-
                 initPolygonCircleFillLayer();
                 GeoJsonSource geoJsonSource = new GeoJsonSource("circle-source",
                         Point.fromLngLat(32.0452857, 34.82474));
@@ -208,7 +203,7 @@ public class ChooseRadiusActivity extends AppCompatActivity  implements View.OnC
                         PropertyFactory.circleColor(Color.argb(1, 55, 148, 179)));
                 style.addLayer(circleLayer);
 
-                addMarkers(map);
+                //addMarkers(map);
 
                 radiusOptions.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
                 {
@@ -216,8 +211,7 @@ public class ChooseRadiusActivity extends AppCompatActivity  implements View.OnC
                     {
                         circleRadiusStr = parent.getItemAtPosition(position).toString();
                         circleRadius = radiusDict.get(circleRadiusStr).intValue();
-                        //drawPolygonCircle(Point.fromLngLat(myLocation.getLongitude(), myLocation.getLatitude()));
-
+                        drawPolygonCircle(Point.fromLngLat(myLocation.getLongitude(), myLocation.getLatitude()));
                     } // to close the onItemSelected
                     public void onNothingSelected(AdapterView<?> parent)
                     {
@@ -283,12 +277,10 @@ public class ChooseRadiusActivity extends AppCompatActivity  implements View.OnC
     }
 
     public void addMarkers(@NonNull MapboxMap mapboxMap){
-
     //    Marker marker = mapboxMap.addMarker(new MarkerOptions()
     //            .icon(IconFactory.getInstance(ChooseRadiusActivity.this).fromResource(R.drawable.myloc_icon))
     //            .position(myLatLng)
     //            .title("me"));
-
         DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference("reports");
         ValueEventListener reportListener = new ValueEventListener() {
             @RequiresApi(api = Build.VERSION_CODES.O)
@@ -300,6 +292,7 @@ public class ChooseRadiusActivity extends AppCompatActivity  implements View.OnC
                     Report rep = ds.getValue(Report.class);
                     float repAge = rep.getRawTime().ageInHrs();
                     LatLng hospitalLoc = new LatLng(32.0452857, 34.82474); ////המיקום של שער הספארי
+                    LatLng myLatLng = new LatLng(myLocation.getLatitude(), myLocation.getLongitude());
                     boolean inRadius = currentUser.getReportsRadius() != 0 && rep.distanceFrom(myLatLng) > currentUser.getReportsRadius();
                     if (repAge > 24.0 || !rep.getStatus().equals("unpicked") || rep.sameLoc(hospitalLoc) || inRadius){Log.d("repfaild", String.format("age: %s, status: %s", repAge, rep.getStatus()));}
                     Marker marker = mapboxMap.addMarker(new MarkerOptions()
@@ -342,9 +335,7 @@ public class ChooseRadiusActivity extends AppCompatActivity  implements View.OnC
         } catch (RuntimeException e) { }
     }
 
-
-
-//==============================================================================================
+//================================================================================================
 // ===============================================================================================
 
     @SuppressWarnings( {"MissingPermission"})
@@ -430,7 +421,6 @@ public class ChooseRadiusActivity extends AppCompatActivity  implements View.OnC
         mapView.onSaveInstanceState(outState);
     }
 
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -441,23 +431,22 @@ public class ChooseRadiusActivity extends AppCompatActivity  implements View.OnC
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()){
             case R.id.home_button:
-                Intent intent = new Intent(this, MainActivity.class);
-                startActivity(intent);
+                currentSession.setMenuActivityFinished(true);
                 finish();
                 return true;
             case R.id.radius:
                 //Intent intent1 = new Intent(this, ChooseRadiusActivity.class);
-                //startActivity(intent1);
+                //startActivityForResult(intent1, MENU_CODE);
                 return true;
             case R.id.more:
                 return true;
-            case R.id.subitem1:
+            case R.id.detailsItem:
                 Intent intent2 = new Intent(this, UserDetailsActivity.class);
-                startActivity(intent2);
+                startActivityForResult(intent2, MENU_CODE);
                 return true;
-            case R.id.subitem2:
+            case R.id.edDetailsItem:
                 Intent intent3 = new Intent(this, EditDetailsActivity.class);
-                startActivity(intent3);
+                startActivityForResult(intent3, MENU_CODE);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -467,20 +456,19 @@ public class ChooseRadiusActivity extends AppCompatActivity  implements View.OnC
 
     @Override
     public void onLocationChanged(Location location) {
-        myLatLng = new LatLng(location.getLatitude(), location.getLongitude());
+        myLocation = location;
+        //map.clear();
         drawPolygonCircle(Point.fromLngLat(location.getLongitude(), location.getLatitude()));
+        //myLatLng = new LatLng(location.getLatitude(), location.getLongitude());
     }
-
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
 
     }
-
     @Override
     public void onProviderEnabled(String provider) {
 
     }
-
     @Override
     public void onProviderDisabled(String provider) {
 

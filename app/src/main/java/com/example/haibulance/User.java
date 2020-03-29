@@ -2,6 +2,7 @@ package com.example.haibulance;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.mapbox.mapboxsdk.geometry.LatLng;
 
 public class User {
     private String name;
@@ -13,15 +14,13 @@ public class User {
     private int pickups = 0;
     private int reports = 0;
     private DatabaseReference databaseUser;
-	public User(){}
-
+    public User(){}
     public User(String name, String email, String password) {
         this.name = name;
         this.email = email;
         this.password = password;
         this.reportsRadius = 0;
     }
-
 
     public int getPickups() {
         return pickups;
@@ -77,7 +76,9 @@ public class User {
     public void setDatabaseKey(String databaseKey) {
         this.databaseKey = databaseKey;
         databaseUser = FirebaseDatabase.getInstance().getReference("users").child(databaseKey);
-
+    }
+    public Boolean RepInRad(Report rep, LatLng myLatLng){
+        return (reportsRadius != 0 && rep.distanceFrom(myLatLng) < reportsRadius) || (reportsRadius == 0);
     }
 
     public String ToString(){return String.format("name: %s, Email: %s, password: %s", name, email, password);}

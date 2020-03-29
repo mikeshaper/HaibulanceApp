@@ -19,10 +19,10 @@
         <menu>
 
             <item
-                android:id="@+id/subitem1"
+                android:id="@+id/detailsItem"
                 android:title="פרטי משתמש" />
             <item
-                android:id="@+id/subitem2"
+                android:id="@+id/edDetailsItem"
                 android:title="ערוך פרטים" />
 
         </menu>

@@ -5,6 +5,8 @@ public class CurrentSession {
     private static Report report = new Report();
     private static User user = new User();
 
+    private static Boolean menuActivityFinished = false;
+
     public CurrentSession() {
     }
     public Report getRep() {
@@ -17,6 +19,14 @@ public class CurrentSession {
         return user;
     }
     public void setUser(User user) {
-        CurrentSession.user = user;
+        this.user = user;
+    }
+
+
+    public static Boolean isMenuActivityFinished() {
+        return menuActivityFinished;
+    }
+    public static void setMenuActivityFinished(Boolean menuActivityFinished) {
+        CurrentSession.menuActivityFinished = menuActivityFinished;
     }
 }
