@@ -1,5 +1,5 @@
 package com.example.haibulance;
-
+//haibulance id in google ads: ca-app-pub-5099612993587566~7360269361
 import android.Manifest;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -28,6 +28,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -83,6 +87,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button centerize;
     private ProgressBar progressBar;
 
+
     private boolean startPickup; //נועד לפתור בעיה של onDataChange (שלא ניתן לעשות finish() בתוכו)
     private DatabaseReference mDatabase;
     private FirebaseDatabase db;
@@ -101,7 +106,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static final String CIRCLE_CENTER_ICON_ID = "CIRCLE_CENTER_ICON_ID";
     private static final String CIRCLE_CENTER_LAYER_ID = "CIRCLE_CENTER_LAYER_ID";
     private int circleSteps = 180;
-    private int circleRadius = 1000;
+    private int circleRadius = 0;
     private String circleUnit = UNIT_METERS;
 
     private static final int RADIUS_CODE = 1;
@@ -113,9 +118,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         Mapbox.getInstance(this, getString(R.string.access_token));
         setContentView(R.layout.activity_main);
-
         currentSession = new CurrentSession();
-
         getUserFromDatabase();
 
         //currentUser = currentSession.getUser();
@@ -134,6 +137,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         flora.setOnClickListener(this);
         report.setOnClickListener(this);
         centerize.setOnClickListener(this);
+
+        setAdd();
 
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(MainActivity.this);
@@ -443,6 +448,46 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
     }
 
+    private AdView mAdView;
+    public void setAdd(){
+        MobileAds.initialize(this, "ca-app-pub-5099612993587566~7360269361");//"ca-app-pub-5099612993587566~7360269361");
+        mAdView = findViewById(R.id.adView);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        mAdView.loadAd(adRequest);
+        mAdView.setAdListener(new AdListener() {
+            @Override
+            public void onAdLoaded() {
+                // Code to be executed when an ad finishes loading.
+            }
+
+            @Override
+            public void onAdFailedToLoad(int errorCode) {
+                // Code to be executed when an ad request fails.
+            }
+
+            @Override
+            public void onAdOpened() {
+                // Code to be executed when an ad opens an overlay that
+                // covers the screen.
+            }
+
+            @Override
+            public void onAdClicked() {
+                // Code to be executed when the user clicks on an ad.
+            }
+
+            @Override
+            public void onAdLeftApplication() {
+                // Code to be executed when the user has left the app.
+            }
+
+            @Override
+            public void onAdClosed() {
+                // Code to be executed when the user is about to return
+                // to the app after tapping on an ad.
+            }
+        });
+    }
 //==============================================================================================
 // ===============================================================================================
 

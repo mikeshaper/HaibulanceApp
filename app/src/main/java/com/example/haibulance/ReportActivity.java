@@ -79,7 +79,6 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
     private final int PICK_IMAGE_REQUEST = 6;
     private final int MENU_CODE = 7;
 
-
     private TextView hour_;
     private EditText specie;
     private Button reportButt;

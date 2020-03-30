@@ -4,19 +4,18 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:mapbox="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".MainActivity"
     android:orientation="vertical">
 
     <com.mapbox.mapboxsdk.maps.MapView
         android:id="@+id/mapView1"
         android:layout_width="0dp"
-        android:layout_height="0dp"
-        mapbox:layout_constraintBottom_toBottomOf="parent"
+        android:layout_height="680dp"
         mapbox:layout_constraintEnd_toEndOf="parent"
-        mapbox:layout_constraintHorizontal_bias="0.492"
+        mapbox:layout_constraintHorizontal_bias="1.0"
         mapbox:layout_constraintStart_toStartOf="parent"
         mapbox:layout_constraintTop_toTopOf="parent"
-        mapbox:layout_constraintVertical_bias="0.2"
         mapbox:mapbox_cameraZoom="12">
 
     </com.mapbox.mapboxsdk.maps.MapView>
@@ -28,7 +27,7 @@
         android:layout_marginTop="650dp"
         android:layout_marginEnd="200dp"
         android:layout_marginRight="200dp"
-        android:layout_marginBottom="50dp"
+        android:layout_marginBottom="100dp"
         android:background="@drawable/button_rounded"
         android:text="מגדירים"
         mapbox:layout_constraintBottom_toBottomOf="parent"
@@ -43,7 +42,7 @@
         android:layout_marginStart="200dp"
         android:layout_marginLeft="200dp"
         android:layout_marginTop="650dp"
-        android:layout_marginBottom="50dp"
+        android:layout_marginBottom="100dp"
         android:background="@drawable/button_rounded"
         android:text="דיווח"
         mapbox:layout_constraintBottom_toBottomOf="parent"
@@ -75,5 +74,17 @@
         mapbox:layout_constraintStart_toStartOf="parent"
         mapbox:layout_constraintTop_toTopOf="parent" />
 
+
+    <com.google.android.gms.ads.AdView
+        android:id="@+id/adView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        app:adSize="BANNER"
+        app:adUnitId="ca-app-pub-5099612993587566/1713476425"
+        mapbox:layout_constraintEnd_toEndOf="parent"
+        mapbox:layout_constraintStart_toStartOf="parent"
+        mapbox:layout_constraintTop_toBottomOf="@+id/mapView1"></com.google.android.gms.ads.AdView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
