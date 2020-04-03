@@ -168,7 +168,7 @@ public class GoogleMapsActivity extends AppCompatActivity implements OnMapReadyC
             case R.id.home_button:
                 return true;
             case R.id.radius:
-                Intent intent1 = new Intent(this, UsersList.class);
+                Intent intent1 = new Intent(this, ChooseRadiusActivity.class);
                 startActivity(intent1);
                 return true;
             case R.id.more:

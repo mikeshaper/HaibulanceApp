@@ -388,6 +388,8 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
     public void writeToDatabase(Report report) {
         //uploadPhoto(myFile);
         Log.d("report created", "rep created");
+        RepTime repTime = report.getRawTime();
+        mDatabase = mDatabase.child(String.valueOf(repTime.getYear())).child("1");//String.valueOf(repTime.getMonth()));
         mDatabase.push().setValue(report);
         mDatabase.addValueEventListener(new ValueEventListener() {
             @Override

@@ -4,6 +4,8 @@ public class CurrentSession {
 
     private static Report report = new Report();
     private static User user = new User();
+    private static String requestedMonth;
+    private static String requestedYear;
 
     private static Boolean menuActivityFinished = false;
 
@@ -21,7 +23,18 @@ public class CurrentSession {
     public void setUser(User user) {
         this.user = user;
     }
-
+    public static String getRequestedMonth() {
+        return requestedMonth;
+    }
+    public static void setRequestedMonth(String requestedMonth) {
+        CurrentSession.requestedMonth = requestedMonth;
+    }
+    public static String getRequestedYear() {
+        return requestedYear;
+    }
+    public static void setRequestedYear(String requestedYear) {
+        CurrentSession.requestedYear = requestedYear;
+    }
 
     public static Boolean isMenuActivityFinished() {
         return menuActivityFinished;

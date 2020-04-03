@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:mapbox="http://schemas.android.com/apk/res-auto"
+    android:background="#27490C"
+    tools:context=".ShowStatReportActivity">
+
+
+    <com.mapbox.mapboxsdk.maps.MapView
+        android:id="@+id/mini_map_showRep"
+        android:layout_width="165dp"
+        android:layout_height="165dp"
+        android:layout_marginTop="70dp"
+        android:layout_marginEnd="185dp"
+        android:layout_marginRight="185dp"
+        mapbox:layout_constraintBottom_toBottomOf="parent"
+        mapbox:layout_constraintEnd_toEndOf="parent"
+        mapbox:layout_constraintHorizontal_bias="0.492"
+        mapbox:layout_constraintStart_toStartOf="parent"
+        mapbox:layout_constraintTop_toTopOf="parent"
+        mapbox:layout_constraintVertical_bias="0.2"
+        mapbox:mapbox_cameraZoom="12"
+        ></com.mapbox.mapboxsdk.maps.MapView>
+
+
+    <ImageView
+        android:id="@+id/img_showRep"
+        android:layout_width="165dp"
+        android:layout_height="165dp"
+        android:layout_marginStart="185dp"
+        android:layout_marginLeft="185dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.524"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.3"
+        app:srcCompat="@drawable/animal_icon" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:fontFamily="casual"
+        android:text="דיווח"
+        android:textColor="#FFFFFF"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/showRep_specie_txt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="60dp"
+        android:text="סוג החיה: "
+        android:textColor="#FFFFFF"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.86"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/img_showRep" />
+
+    <TextView
+        android:id="@+id/showRep_time_txt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="מועד הדיווח: "
+        android:textColor="#FFFFFF"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="@+id/showRep_specie_txt"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="@+id/showRep_specie_txt"
+        app:layout_constraintTop_toBottomOf="@+id/showRep_specie_txt" />
+
+    <TextView
+        android:id="@+id/showRep_desc_txt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="תיאור המצב: "
+        android:textColor="#FFFFFF"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="@+id/showRep_time_txt"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="@+id/showRep_time_txt"
+        app:layout_constraintTop_toBottomOf="@+id/showRep_time_txt" />
+
+
+    <TextView
+        android:id="@+id/showRep_status_txt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="68dp"
+        android:text="סטטוס: "
+        android:textColor="#FFFFFF"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="@+id/showRep_desc_txt"
+        mapbox:layout_constraintHorizontal_bias="1.0"
+        mapbox:layout_constraintStart_toStartOf="@+id/showRep_time_txt"
+        mapbox:layout_constraintTop_toBottomOf="@+id/showRep_time_txt" />
+
+    <TextView
+        android:id="@+id/showRep_locname"
+        android:layout_width="163dp"
+        android:layout_height="43dp"
+        android:layout_marginTop="8dp"
+        android:text="location name"
+        android:textColor="#D7FFFFFF"
+        app:layout_constraintEnd_toEndOf="@+id/mini_map_showRep"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/mini_map_showRep"
+        app:layout_constraintTop_toBottomOf="@+id/mini_map_showRep" />
+
+    <ProgressBar
+        android:id="@+id/progressBar_ShowRepImg"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="90dp"
+        android:layout_height="90dp"
+        app:layout_constraintBottom_toBottomOf="@+id/img_showRep"
+        app:layout_constraintEnd_toEndOf="@+id/img_showRep"
+        app:layout_constraintStart_toStartOf="@+id/img_showRep"
+        app:layout_constraintTop_toTopOf="@+id/img_showRep" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

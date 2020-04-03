@@ -17,15 +17,17 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
-        tools:replace="android:label"
         android:allowBackup="true"
         android:icon="@drawable/haibu_icon"
         android:label="HaibulanceApp"
         android:requestLegacyExternalStorage="true"
         android:roundIcon="@drawable/haibu_icon"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
-        <activity android:name=".StatisticsActivity"></activity>
+        android:theme="@style/AppTheme"
+        tools:replace="android:label">
+        <activity android:name=".ShowStatReportActivity"></activity>
+        <activity android:name=".ShowStatisticsOnMapActivity" />
+        <activity android:name=".StatisticsActivity" />
         <activity android:name=".FloraImgsActivity" />
         <activity android:name=".EditDetailsActivity" />
         <activity android:name=".UserDetailsActivity" />
@@ -59,7 +61,6 @@
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:screenOrientation="portrait" />
         <activity android:name=".GoogleMapsActivity" />
-        <activity android:name=".UsersList" />
         <activity
             android:name=".RegisterActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
@@ -78,11 +79,9 @@
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/map_key" />
-
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-5099612993587566~7360269361"/>
-
+            android:value="ca-app-pub-5099612993587566~7360269361" />
     </application>
 
 </manifest>

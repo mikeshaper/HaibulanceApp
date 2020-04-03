@@ -24,6 +24,9 @@
             <item
                 android:id="@+id/edDetailsItem"
                 android:title="ערוך פרטים" />
+            <item
+                android:id="@+id/statistics"
+                android:title="ניתוח וניטור" />
 
         </menu>
 

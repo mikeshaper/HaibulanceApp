@@ -209,13 +209,16 @@ public class ChooseRadiusActivity extends AppCompatActivity  implements View.OnC
                 {
                     public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
                     {
+                        if (myLocation == null) {
+                            Toast.makeText(ChooseRadiusActivity.this, String.format("סליחה, יש בעיה במציאת מיקומך. יש לחכות מספר שניות ולנסות שוב"), Toast.LENGTH_LONG);
+                            return;
+                        }
                         circleRadiusStr = parent.getItemAtPosition(position).toString();
                         circleRadius = radiusDict.get(circleRadiusStr).intValue();
                         drawPolygonCircle(Point.fromLngLat(myLocation.getLongitude(), myLocation.getLatitude()));
                     } // to close the onItemSelected
                     public void onNothingSelected(AdapterView<?> parent)
                     {
-
                     }
                 });
             }

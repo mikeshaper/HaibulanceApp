@@ -67,6 +67,7 @@ import com.mapbox.mapboxsdk.utils.BitmapUtils;
 import com.mapbox.turf.TurfMeta;
 import com.mapbox.turf.TurfTransformation;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.fillColor;
@@ -96,6 +97,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private CurrentSession currentSession;
     private User currentUser;
+    private int year;
+    private int month;
 
     Style style;
 
@@ -111,6 +114,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private static final int RADIUS_CODE = 1;
     private final int MENU_CODE = 2;
+    private final int REPORT_CODE = 3;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
@@ -138,6 +142,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         report.setOnClickListener(this);
         centerize.setOnClickListener(this);
 
+        year = LocalDateTime.now().getYear();
+        month = LocalDateTime.now().getMonthValue();
         setAdd();
 
         mapView.onCreate(savedInstanceState);
@@ -159,6 +165,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         myLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public void onClick(View view) {
         if (view == flora) {
@@ -168,7 +175,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         } else if (view == report) {
             if (myLocation != null) {
                 Log.d("clicked", "report");
+                //String year = String.valueOf(LocalDateTime.now().getYear());
+                //int month = LocalDateTime.now().getMonthValue();
+                //if (month == 0);
+                //checkRepExists(year, String.valueOf(month-1));
+                //checkRepExists(year, String.valueOf(month));
                 checkRepExists();
+
             }
             else Toast.makeText(MainActivity.this, "sorry, there is a problem with finding your location", Toast.LENGTH_LONG).show();
 
@@ -216,35 +229,37 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 style.addLayer(circleLayer);
 
                 //drawPolygonCircle(myLocation);
-
-                addMarkers();
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    addMarkers();
+                }
                 mapboxMap.setOnMarkerClickListener(new MapboxMap.OnMarkerClickListener() {
                     @Override
                     public boolean onMarkerClick(@NonNull Marker marker) {
                         //int id = (int)marker.getId();
                         progressBar.setVisibility(View.VISIBLE);
                         LatLng latLng = marker.getPosition();
-                        mDatabase = FirebaseDatabase.getInstance().getReference("reports");
-                        ValueEventListener findReportListener = new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                for (DataSnapshot ds : dataSnapshot.getChildren()) {
-                                    Report rep = ds.getValue(Report.class);
-                                    if (rep.sameLoc(latLng)) {
-                                        rep.setDatabaseKey(ds.getKey());
-                                        currentSession.setRep(rep);
-                                        startPickup = true;
+                        mDatabase = FirebaseDatabase.getInstance().getReference("reports/" + year);
+                        for (int i = month-1; i<=month; i++) {
+                            ValueEventListener findReportListener = new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                    for (DataSnapshot ds : dataSnapshot.getChildren()) {
+                                        Report rep = ds.getValue(Report.class);
+                                        if (rep.sameLoc(latLng)) {
+                                            rep.setDatabaseKey(ds.getKey());
+                                            currentSession.setRep(rep);
+                                            startPickup = true;
+                                        }
                                     }
                                 }
-                            }
 
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
-                                // Getting Report failed
-                            }
-                        };
-                        mDatabase.addValueEventListener(findReportListener);
-
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) {
+                                    // Getting Report failed
+                                }
+                            };
+                            mDatabase.child(String.valueOf(i)).addValueEventListener(findReportListener);
+                        }
                         progressBar.setVisibility(View.INVISIBLE);
                         if (currentSession.getRep() == null)
                             Toast.makeText(MainActivity.this, "ERROR: could not find the report", Toast.LENGTH_LONG).show();
@@ -256,16 +271,33 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         return true;
                     }
                 });
+
+                mDatabase = FirebaseDatabase.getInstance().getReference("reports");
+                ValueEventListener reportListener = new ValueEventListener() {
+                    @RequiresApi(api = Build.VERSION_CODES.O)
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        // Get Report object and use the values to update the UI
+                        map.clear();
+                        addMarkers();
+                    }
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        // Getting Report failed
+                    }
+                };
+                mDatabase.addValueEventListener(reportListener);
+
             }
         });
     }
 
-
-    private boolean repActStarted = true;
+    //private boolean repActStarted = false;
+    @RequiresApi(api = Build.VERSION_CODES.O)
     public void checkRepExists() {
-        repActStarted = false;
+        //repActStarted = false;
         final boolean[] makeRep = {true};
-        mDatabase = FirebaseDatabase.getInstance().getReference("reports");
+        mDatabase = FirebaseDatabase.getInstance().getReference(String.format("reports/%s/%s", year, month));
         ValueEventListener findReportListener = new ValueEventListener() {
             @RequiresApi(api = Build.VERSION_CODES.M)
             @Override
@@ -277,6 +309,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     float[] distance = new float[1];
                     LatLng repLoc = rep.getLocation();
                     Location.distanceBetween(lat, lon, repLoc.getLatitude(), repLoc.getLongitude(), distance);
+                    Log.d("dvadav", String.valueOf(repActStarted));
                     if (distance[0] < 100 && !repActStarted && rep.getStatus().equals("unpicked")) {
                         Log.d("dclicked", "creating dialog.. " + distance[0]);
                         if (!createCloseRepDialog(rep.ToString())){
@@ -291,7 +324,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     Log.d("dclicked", "starting report...");
                     repActStarted = true;
                     Intent intent = new Intent(MainActivity.this, ReportActivity.class);
-                    startActivityForResult(intent, 0);
+                    startActivityForResult(intent, REPORT_CODE);
                 }
             }
 
@@ -300,6 +333,51 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         };
         mDatabase.addValueEventListener(findReportListener);
+    }
+
+    private boolean repActStarted = false;
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public void checkRepExists2() {
+        repActStarted = false;
+        final boolean[] makeRep = {true};
+        int year = LocalDateTime.now().getYear();
+        int month = LocalDateTime.now().getMonthValue();
+        mDatabase = FirebaseDatabase.getInstance().getReference("reports");
+        for (int i = month; i >= month-1; i--) {
+            int finalI = i;
+            ValueEventListener findReportListener = new ValueEventListener() {
+                @RequiresApi(api = Build.VERSION_CODES.M)
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    double lat = myLocation.getLatitude();
+                    double lon = myLocation.getLongitude();
+                    for (DataSnapshot ds : dataSnapshot.getChildren()) {
+                        Report rep = ds.getValue(Report.class);
+                        float[] distance = new float[1];
+                        LatLng repLoc = rep.getLocation();
+                        Location.distanceBetween(lat, lon, repLoc.getLatitude(), repLoc.getLongitude(), distance);
+                        if (distance[0] < 100 && !repActStarted && rep.getStatus().equals("unpicked")) {
+                            Log.d("dclicked", "creating dialog.. " + distance[0]);
+                            if (!createCloseRepDialog(rep.ToString())) {
+                                makeRep[0] = false;
+                                return;
+                            }
+                        }
+                        if (finalI == month-1 && makeRep[0] && !repActStarted) {
+                            Log.d("dclicked", "starting report...");
+                            repActStarted = true;
+                            Intent intent = new Intent(MainActivity.this, ReportActivity.class);
+                            startActivityForResult(intent, REPORT_CODE);
+                        }
+                    }
+                }
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                }
+            };
+            if (i == 0) { year--; mDatabase.child(String.valueOf(year)).child("12").addValueEventListener(findReportListener); }
+            else mDatabase.child(String.valueOf(year)).child(String.valueOf(i)).addValueEventListener(findReportListener);
+        }
     }
 
     public boolean createCloseRepDialog(String repTxt) {
@@ -337,37 +415,42 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return makeRep[0];
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     public void addMarkers(){
+        map.clear();
         //if (myLocation == null) return;
-        mDatabase = FirebaseDatabase.getInstance().getReference("reports");
-        ValueEventListener reportListener = new ValueEventListener() {
-            @RequiresApi(api = Build.VERSION_CODES.O)
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                // Get Report object and use the values to update the UI
-                map.clear();
-                for (DataSnapshot ds: dataSnapshot.getChildren()) {
-                    Report rep = ds.getValue(Report.class);
-                    float repAge = rep.getRawTime().ageInHrs();
-                    LatLng hospitalLoc = new LatLng(32.0452857, 34.82474); ////המיקום של שער הספארי
-                    LatLng myLatLng = new LatLng(myLocation.getLatitude(), myLocation.getLongitude());
-                    boolean inRadius = currentUser.RepInRad(rep, myLatLng);
-                    if (repAge > 24.0 || rep.getStatus().equals("caseClosed") || rep.sameLoc(hospitalLoc) || !inRadius){Log.d("repfaild", String.format("age: %s, status: %s", repAge, rep.getStatus()));}
-                    else {
-                        Marker marker = map.addMarker(new MarkerOptions()
-                                .icon(IconFactory.getInstance(MainActivity.this).fromResource(rep.iconColor()))
-                                .position(rep.getLocation())
-                                .title(rep.ToString()));
+        int year = LocalDateTime.now().getYear();
+        int month = LocalDateTime.now().getMonthValue();
+        mDatabase = FirebaseDatabase.getInstance().getReference("reports").child(String.valueOf(year));
+        for (int i = month-1; i <=month; i++) {
+            ValueEventListener reportListener = new ValueEventListener() {
+                @RequiresApi(api = Build.VERSION_CODES.O)
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    // Get Report object and use the values to update the UI
+                    for (DataSnapshot ds: dataSnapshot.getChildren()) {
+                        Report rep = ds.getValue(Report.class);
+                        float repAge = rep.getRawTime().ageInHrs();
+                        LatLng hospitalLoc = new LatLng(32.0452857, 34.82474); ////המיקום של שער הספארי
+                        LatLng myLatLng = new LatLng(myLocation.getLatitude(), myLocation.getLongitude());
+                        boolean inRadius = currentUser.RepInRad(rep, myLatLng);
+                        if (repAge > 24.0 || rep.getStatus().equals("caseClosed") || rep.sameLoc(hospitalLoc) || !inRadius){Log.d("repfaild", String.format("age: %s, status: %s", repAge, rep.getStatus()));}
+                        else {
+                            Marker marker = map.addMarker(new MarkerOptions()
+                                    .icon(IconFactory.getInstance(MainActivity.this).fromResource(rep.iconColor()))
+                                    .position(rep.getLocation())
+                                    .title(rep.ToString()));
+                        }
                     }
                 }
-            }
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                // Getting Report failed
-            }
-        };
-        mDatabase.addValueEventListener(reportListener);
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    // Getting Report failed
+                }
+            };
+            mDatabase.child(String.valueOf(i)).addValueEventListener(reportListener);
+        }
     }
 
     public void getUserFromDatabase(){
@@ -398,6 +481,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * @param loc the center coordinate to be used in the Turf calculation.
      */
     private void drawPolygonCircle(Location loc) {
+        if (map == null || loc == null) return;
         Point circleCenter = Point.fromLngLat(loc.getLongitude(), loc.getLatitude());
         map.getStyle(new Style.OnStyleLoaded() {
             @Override
@@ -639,10 +723,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mapView.onSaveInstanceState(outState);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
+            case REPORT_CODE:
+                repActStarted = false;
             case MENU_CODE:
                 map.clear();
                 addMarkers();
@@ -680,6 +767,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Intent intent3 = new Intent(this, EditDetailsActivity.class);
                 startActivityForResult(intent3, MENU_CODE);
                 return true;
+            case R.id.statistics:
+                Intent intent4 = new Intent(this, StatisticsActivity.class);
+                startActivityForResult(intent4, MENU_CODE);
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -689,6 +780,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onBackPressed() {
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public void onLocationChanged(Location location) {
         myLocation = location;

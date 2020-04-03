@@ -285,7 +285,7 @@ public class NaviActivity extends AppCompatActivity implements OnMapReadyCallbac
                 finish();
                 return true;
             case R.id.radius:
-                Intent intent1 = new Intent(this, UsersList.class);
+                Intent intent1 = new Intent(this, ChooseRadiusActivity.class);
                 startActivity(intent1);
                 return true;
             case R.id.more:

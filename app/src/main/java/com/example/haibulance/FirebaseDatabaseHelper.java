@@ -14,31 +14,31 @@ import java.util.List;
 public class FirebaseDatabaseHelper {
     private FirebaseDatabase mDatabase;
     private DatabaseReference mReferenceUsers;
-    private List<User> users = new ArrayList<>();
+    private List<Report> reports = new ArrayList<>();
 
     public interface DataStatus{
-        void DataIsLoaded(List<User> users, List<String> keys);
+        void DataIsLoaded(List<Report> reports, List<String> keys);
         void DataIsInserted();
         void DataIsUpdated();
         void DataIsDeleated();
     }
-    public FirebaseDatabaseHelper(){
+    public FirebaseDatabaseHelper(String path){
         mDatabase = FirebaseDatabase.getInstance();
-        mReferenceUsers = mDatabase.getReference("users");
+        mReferenceUsers = mDatabase.getReference(path);
     }
 
-    public void readUsers(final DataStatus dataStatus){
+    public void readReports(final DataStatus dataStatus){
         mReferenceUsers.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                users.clear();
+                reports.clear();
                 List<String> keys = new ArrayList<>();
                 for (DataSnapshot keyNode: dataSnapshot.getChildren()){
                     keys.add(keyNode.getKey());
-                    User user = keyNode.getValue(User.class);
-                    users.add(user);
+                    Report report = keyNode.getValue(Report.class);
+                    reports.add(report);
                 }
-                dataStatus.DataIsLoaded(users,keys);
+                dataStatus.DataIsLoaded(reports, keys);
             }
 
             @Override
