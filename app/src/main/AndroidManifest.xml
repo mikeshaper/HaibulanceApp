@@ -25,7 +25,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:replace="android:label">
-        <activity android:name=".ShowStatReportActivity"></activity>
+        <activity android:name=".ShowRepRouteActivity"></activity>
+        <activity android:name=".ShowStatReportActivity" />
         <activity android:name=".ShowStatisticsOnMapActivity" />
         <activity android:name=".StatisticsActivity" />
         <activity android:name=".FloraImgsActivity" />

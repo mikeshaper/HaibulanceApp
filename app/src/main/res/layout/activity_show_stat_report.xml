@@ -100,15 +100,29 @@
         android:id="@+id/showRep_status_txt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="68dp"
+        android:layout_marginTop="16dp"
         android:text="סטטוס: "
         android:textColor="#FFFFFF"
         android:textSize="24sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="@+id/showRep_desc_txt"
-        mapbox:layout_constraintHorizontal_bias="1.0"
-        mapbox:layout_constraintStart_toStartOf="@+id/showRep_time_txt"
-        mapbox:layout_constraintTop_toBottomOf="@+id/showRep_time_txt" />
+        app:layout_constraintHorizontal_bias="0.966"
+        app:layout_constraintStart_toStartOf="@+id/showRep_desc_txt"
+        app:layout_constraintTop_toBottomOf="@+id/showRep_desc_txt" />
+
+    <TextView
+        android:id="@+id/showRep_newLoc_txt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="מיקום לאחר איסוף: "
+        android:textColor="#FFFFFF"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="@+id/showRep_status_txt"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="@+id/showRep_status_txt"
+        app:layout_constraintTop_toBottomOf="@+id/showRep_status_txt" />
 
     <TextView
         android:id="@+id/showRep_locname"
@@ -131,6 +145,16 @@
         app:layout_constraintEnd_toEndOf="@+id/img_showRep"
         app:layout_constraintStart_toStartOf="@+id/img_showRep"
         app:layout_constraintTop_toTopOf="@+id/img_showRep" />
+
+    <Button
+        android:id="@+id/showRep_showNewLocBtn"
+        android:layout_width="184dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="28dp"
+        android:background="@drawable/button_rounded"
+        android:text="הראה מיקום לאחר איסוף"
+        app:layout_constraintEnd_toEndOf="@+id/showRep_newLoc_txt"
+        app:layout_constraintTop_toBottomOf="@+id/showRep_newLoc_txt" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

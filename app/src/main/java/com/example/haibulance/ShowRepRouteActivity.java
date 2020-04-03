@@ -1,17 +1,12 @@
 package com.example.haibulance;
 
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
-import android.location.Location;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -23,6 +18,8 @@ import com.mapbox.api.directions.v5.models.DirectionsResponse;
 import com.mapbox.api.directions.v5.models.DirectionsRoute;
 import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.Mapbox;
+import com.mapbox.mapboxsdk.annotations.IconFactory;
+import com.mapbox.mapboxsdk.annotations.MarkerOptions;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.location.LocationComponent;
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions;
@@ -34,8 +31,6 @@ import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
-import com.mapbox.services.android.navigation.ui.v5.NavigationLauncher;
-import com.mapbox.services.android.navigation.ui.v5.NavigationLauncherOptions;
 import com.mapbox.services.android.navigation.ui.v5.route.NavigationMapRoute;
 import com.mapbox.services.android.navigation.v5.navigation.MapboxNavigation;
 import com.mapbox.services.android.navigation.v5.navigation.NavigationRoute;
@@ -50,11 +45,10 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconAllowOverlap
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconIgnorePlacement;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconImage;
 
-public class NaviActivity extends AppCompatActivity implements OnMapReadyCallback, PermissionsListener, View.OnClickListener {
+public class ShowRepRouteActivity extends AppCompatActivity implements OnMapReadyCallback, PermissionsListener {
 
 
     private MapView mapView;
-    private Button startNaviBtn;
     private PermissionsManager permissionsManager;
     private MapboxMap map;
     private CurrentSession currentSession;
@@ -63,25 +57,23 @@ public class NaviActivity extends AppCompatActivity implements OnMapReadyCallbac
     private DirectionsRoute currentRoute;
     private MapboxNavigation navigation;
     private LatLng destination;
+    private LatLng origin;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Mapbox.getInstance(this, getString(R.string.access_token));
-        setContentView(R.layout.activity_navi);
-
+        setContentView(R.layout.activity_show_route);
 
         navigation = new MapboxNavigation(this, getString(R.string.access_token));
-        mapView = findViewById(R.id.navi_map);
+        mapView = findViewById(R.id.route_map);
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
 
-        startNaviBtn = findViewById(R.id.start_navi_butt);
-        startNaviBtn.setOnClickListener(NaviActivity.this);
-
         currentSession = new CurrentSession();
         currentRep = currentSession.getRep();
-        destination = currentRep._getDestination();
+        destination = currentRep.getLocation();
+        origin = currentRep.getOgLocation();
     }
 
     @Override
@@ -95,46 +87,20 @@ public class NaviActivity extends AppCompatActivity implements OnMapReadyCallbac
                 addDestinationIconSymbolLayer(style);
 
                 //find my location
-                LocationManager lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
-                Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                double lat = location.getLatitude();
-                double lon = location.getLongitude();
-                currentSession = new CurrentSession();
-                currentRep = currentSession.getRep();
-                destination = currentRep._getDestination();
 
-                Point rep = Point.fromLngLat(currentRep.getLon(), currentRep.getLat());
-                Point origin = Point.fromLngLat(lon, lat);
+                Point orig = Point.fromLngLat(origin.getLongitude(), origin.getLatitude());
                 Point dest = Point.fromLngLat(destination.getLongitude(), destination.getLatitude());
-                getRoute(origin, dest, rep);
+                mapboxMap.addMarker(new MarkerOptions()
+                        .icon(IconFactory.getInstance(ShowRepRouteActivity.this).fromResource(R.drawable.red_marker))
+                        .position(origin)
+                        .title("מיקום מקורי"));
+                mapboxMap.addMarker(new MarkerOptions()
+                        .icon(IconFactory.getInstance(ShowRepRouteActivity.this).fromResource(R.drawable.green_marker))
+                        .position(destination)
+                        .title("מיקום לאחר איסוף"));
+                getRoute(orig, dest);
             }
         });
-    }
-
-
-    @Override
-    public void onClick(View view) {
-        if (view == startNaviBtn){
-            if (currentRoute != null)
-                startNaivgation();
-        }
-    }
-
-    public void startNaivgation(){
-        //FirebaseDatabase.getInstance().getReference("reports").child(currentRep.getDatabaseKey()).child("status").setValue("picked");
-        //FirebaseDatabase.getInstance().getReference("reports").child(currentRep.getDatabaseKey()).child("location").setValue(destination);
-        currentRep._setStatus("picked");
-        LatLng hospitalLoc = new LatLng(32.0452857, 34.82474); ////המיקום של שער הספארי
-        if(destination == hospitalLoc) currentRep._setStatus("caseClosed");
-        currentRep._setLocation(destination);
-        currentSession.getUser().addPickup();
-        boolean simulateRoute = true;
-        NavigationLauncherOptions options = NavigationLauncherOptions.builder()
-                .directionsRoute(currentRoute)
-                .shouldSimulateRoute(simulateRoute)
-                .build();
-        // Call this method with Context from within an Activity
-        NavigationLauncher.startNavigation(NaviActivity.this, options);
     }
 
 
@@ -153,18 +119,17 @@ public class NaviActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
 
-    private void getRoute(Point orig, Point dest, Point rep){
-        NavigationRoute.builder(NaviActivity.this)
+    private void getRoute(Point orig, Point dest){
+        NavigationRoute.builder(ShowRepRouteActivity.this)
                 .accessToken(getString(R.string.access_token))
                 .origin(orig)
                 .destination(dest)
-                .addWaypoint(rep)
                 .build()
                 .getRoute(new Callback<DirectionsResponse>() {
                     @Override
                     public void onResponse(Call<DirectionsResponse> call, Response<DirectionsResponse> response) {
                         if (response.body() == null || response.body().routes().size() == 0){
-                            Log.d("navigationactivity", "no routs found ):");
+                            Log.d("showrouteactivity", "no routs found ):");
                             return;
                         }
                         // Route fetched from NavigationRoute

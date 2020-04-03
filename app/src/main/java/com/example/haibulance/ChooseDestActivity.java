@@ -1,9 +1,13 @@
 package com.example.haibulance;
 
+import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -21,9 +25,9 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.firebase.database.FirebaseDatabase;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
 import com.mapbox.api.directions.v5.models.DirectionsResponse;
@@ -82,6 +86,8 @@ public class ChooseDestActivity extends AppCompatActivity implements  View.OnCli
     private Map<String, LatLng> placesDict;
     private ProgressBar progressBar;
 
+    private String locnameStr;
+
 
     private MapboxMap mapboxMap;
     private Button chooseCityButton;
@@ -127,6 +133,7 @@ public class ChooseDestActivity extends AppCompatActivity implements  View.OnCli
         if (view == okBtn){
             if (choosed) {
                 currentRep.setDestination(dest);
+                currentRep._setLocationName(locnameStr);
                 finish();
             }
             else     Toast.makeText(ChooseDestActivity.this, "please choose destination", Toast.LENGTH_LONG).show();
@@ -162,6 +169,7 @@ public class ChooseDestActivity extends AppCompatActivity implements  View.OnCli
 
 
 
+
         String[] names = placesDict.keySet().toArray(new String[placesDict.size()]);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>
                 (ChooseDestActivity.this, android.R.layout.select_dialog_item, names);
@@ -183,6 +191,7 @@ public class ChooseDestActivity extends AppCompatActivity implements  View.OnCli
                     addMarker(map, currentRep.getLocation(), "report");
                     dest = latLng;
                     destName.setText(addressToSearch);
+                    locnameStr = addressToSearch;
                     choosed = true;
                 }
             }
@@ -211,20 +220,20 @@ public class ChooseDestActivity extends AppCompatActivity implements  View.OnCli
                 progressBar.setVisibility(View.VISIBLE);
                 if (isLegalDest(point)) {
                     mapboxMap.clear();
-
                     mapboxMap.addMarker(new MarkerOptions()
                             .icon(IconFactory.getInstance(ChooseDestActivity.this).fromResource(R.drawable.green_marker))
                             .position(point)
                             .title("destination"));
                     addMarker(mapboxMap, currentRep.getLocation(), "report");
                     dest = point;
+                    //getRoute();
                     progressBar.setVisibility(View.INVISIBLE);
 
                     //find location name
                     try {
                         List<Address> results = geo.getFromLocation(point.getLatitude(), point.getLongitude(), 1);
                         Address address = results.get(0);
-                        String locnameStr = address.getAddressLine(0);
+                        locnameStr = address.getAddressLine(0);
                         destName.setText(locnameStr);
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -321,12 +330,26 @@ public class ChooseDestActivity extends AppCompatActivity implements  View.OnCli
                 .position(new LatLng(latLng.getLatitude(), latLng.getLongitude()))
                 .title(Title));
     }
-    private void getRoute(Point orig, Point dest, Point rep){
+
+    private void getRoute(){
+        LatLng mLatLng = new LatLng();
+        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        if (ActivityCompat.checkSelfPermission(ChooseDestActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
+                ActivityCompat.checkSelfPermission(ChooseDestActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        Location myLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        mLatLng.setLatitude(myLocation.getLatitude());
+        mLatLng.setLongitude(myLocation.getLongitude());
+        Point origin = Point.fromLngLat(mLatLng.getLongitude(), myLocation.getLatitude());
+        Point desti = Point.fromLngLat(dest.getLongitude(), dest.getLatitude());
+        Point repLoc = Point.fromLngLat(currentRep.getLocation().getLongitude(), currentRep.getLocation().getLatitude());
+
         NavigationRoute.builder(ChooseDestActivity.this)
-                .accessToken(String.valueOf(R.string.access_token))
-                .origin(orig)
-                .destination(dest)
-                .addWaypoint(rep)
+                .accessToken(getString(R.string.access_token))
+                .origin(origin)
+                .destination(desti)
+                .addWaypoint(repLoc)
                 .build()
                 .getRoute(new Callback<DirectionsResponse>() {
                     @Override
@@ -337,13 +360,15 @@ public class ChooseDestActivity extends AppCompatActivity implements  View.OnCli
                         }
                         // Route fetched from NavigationRoute
                         DirectionsRoute route = response.body().routes().get(0);
-                        if (navigationMapRoute != null)
+
+                        if (navigationMapRoute != null) {
                             navigationMapRoute.removeRoute();
-                        else {
-                            FirebaseDatabase.getInstance().getReference("reports").child(currentRep.getDatabaseKey()).child("status").setValue("picked");
-                            navigationMapRoute = new NavigationMapRoute(null, mapView, map);
-                            navigationMapRoute.addRoute(route);
                         }
+
+                        map.getStyle().removeLayer("mapbox-navigation-waypoint-layer");
+                        map.getStyle().removeSource("mapbox-navigation-waypoint-source");
+                        navigationMapRoute = new NavigationMapRoute(null, mapView, map);
+                        navigationMapRoute.addRoute(route);
                     }
                     @Override
                     public void onFailure(Call<DirectionsResponse> call, Throwable t) {

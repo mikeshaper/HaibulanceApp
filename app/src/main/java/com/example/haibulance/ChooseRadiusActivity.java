@@ -297,7 +297,7 @@ public class ChooseRadiusActivity extends AppCompatActivity  implements View.OnC
                     LatLng hospitalLoc = new LatLng(32.0452857, 34.82474); ////המיקום של שער הספארי
                     LatLng myLatLng = new LatLng(myLocation.getLatitude(), myLocation.getLongitude());
                     boolean inRadius = currentUser.getReportsRadius() != 0 && rep.distanceFrom(myLatLng) > currentUser.getReportsRadius();
-                    if (repAge > 24.0 || !rep.getStatus().equals("unpicked") || rep.sameLoc(hospitalLoc) || inRadius){Log.d("repfaild", String.format("age: %s, status: %s", repAge, rep.getStatus()));}
+                    if (repAge > 24.0 || !rep.getStatus().equals("unpicked") || rep.sameLoc(rep.getLocation(), hospitalLoc) || inRadius){Log.d("repfaild", String.format("age: %s, status: %s", repAge, rep.getStatus()));}
                     Marker marker = mapboxMap.addMarker(new MarkerOptions()
                             .icon(IconFactory.getInstance(ChooseRadiusActivity.this).fromResource(rep.iconColor()))
                             .position(rep.getLocation())

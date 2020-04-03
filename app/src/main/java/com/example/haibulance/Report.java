@@ -14,8 +14,10 @@ public class Report{
     private String specie;
     private String description;
     private LatLng location;
+    private LatLng ogLocation;
     private LatLng destination;
     private String locationName;
+    private String ogLocationName;
     private String time;
     private String status;
     private String reporterName;
@@ -24,15 +26,15 @@ public class Report{
     private RepTime rawTime;
     private DatabaseReference databaseRep;
 
-
     public Report(){}
-
 
     public Report(String specie, LatLng location, String locationName, String time, String description, String reporterName, String status, RepTime rawTime){
         this.specie = specie;
         this.location = location;
+        this.ogLocation = location;
         this.description = description;
         this.locationName = locationName;
+        this.ogLocationName = locationName;
         this.time = rawTime.ToString();
         this.reporterName = reporterName;
         this.status = status;
@@ -65,7 +67,7 @@ public class Report{
     }
     public void _setStatus(String status) {
         this.status = status;
-        databaseRep.child("status").setValue("picked");
+        databaseRep.child("status").setValue(status);
     }
     public String getImgKey() {
         return this.imgKey;
@@ -75,7 +77,7 @@ public class Report{
     }
     public void setDatabaseKey(String databaseKey) {
         this.databaseKey = databaseKey;
-        databaseRep = FirebaseDatabase.getInstance().getReference("reports").child(databaseKey);
+        databaseRep = databaseRep.child(databaseKey);
     }
     public String getDatabaseKey() {
         return databaseKey;
@@ -117,10 +119,38 @@ public class Report{
     public void setDestination(LatLng destination) {
         this.destination = destination;
     }
-    public boolean sameLoc(LatLng latLng){
-        return location.getLatitude() == latLng.getLatitude() && location.getLongitude() == latLng.getLongitude();}
+    public boolean sameLoc(LatLng latLng, LatLng latLng2){
+        return latLng2.getLatitude() == latLng.getLatitude() && latLng2.getLongitude() == latLng.getLongitude();}
+    public void setOgLocation(LatLng ogLocation) {
+        this.ogLocation = ogLocation;
+    }
+    public LatLng getOgLocation() {
+        return ogLocation;
+    }
+    public String getOgLocationName() {
+        return ogLocationName;
+    }
+    public void setOgLocationName(String ogLocationName) {
+        this.ogLocationName = ogLocationName;
+    }
+    public String getDatabaseRep() {
+        return String.format("%s/%s", databaseRep.getParent().getKey(), databaseRep.getKey());
+    }
+    public DatabaseReference _getDatabaseRep() {
+        return this.databaseRep;
+    }
+    public void setDatabaseRep(String path) {
+        this.databaseRep = FirebaseDatabase.getInstance().getReference("reports").child(path);
+    }
+    public void _setDatabaseRep(DatabaseReference databaseReference) {
+        this.databaseRep = databaseReference;
+    }
+    public void _setLocationName(String locationName) {
+        this.locationName = locationName;
+        databaseRep.child("locationName").setValue(locationName);
+    }
 
     public String ToString(){
-        return String.format("%s, %s",specie, description);
+        return String.format("%s, %s, %s",specie, description, String.valueOf(destination));
     }
 }

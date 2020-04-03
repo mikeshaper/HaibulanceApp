@@ -245,7 +245,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 public void onDataChange(DataSnapshot dataSnapshot) {
                                     for (DataSnapshot ds : dataSnapshot.getChildren()) {
                                         Report rep = ds.getValue(Report.class);
-                                        if (rep.sameLoc(latLng)) {
+                                        if (rep.sameLoc(rep.getLocation(), latLng)) {
                                             rep.setDatabaseKey(ds.getKey());
                                             currentSession.setRep(rep);
                                             startPickup = true;
@@ -434,7 +434,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         LatLng hospitalLoc = new LatLng(32.0452857, 34.82474); ////המיקום של שער הספארי
                         LatLng myLatLng = new LatLng(myLocation.getLatitude(), myLocation.getLongitude());
                         boolean inRadius = currentUser.RepInRad(rep, myLatLng);
-                        if (repAge > 24.0 || rep.getStatus().equals("caseClosed") || rep.sameLoc(hospitalLoc) || !inRadius){Log.d("repfaild", String.format("age: %s, status: %s", repAge, rep.getStatus()));}
+                        if (repAge > 24.0 || rep.getStatus().equals("caseClosed") || rep.sameLoc(rep.getLocation(), hospitalLoc) || !inRadius){Log.d("repfaild", String.format("age: %s, status: %s", repAge, rep.getStatus()));}
                         else {
                             Marker marker = map.addMarker(new MarkerOptions()
                                     .icon(IconFactory.getInstance(MainActivity.this).fromResource(rep.iconColor()))

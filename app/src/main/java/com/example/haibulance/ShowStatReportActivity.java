@@ -12,6 +12,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -54,12 +55,14 @@ public class ShowStatReportActivity extends AppCompatActivity implements View.On
     private TextView repSpecie;
     private TextView repTime;
     private TextView repDesc;
-    private TextView locName;
+    private TextView ogLocName;
+    private TextView newLocName;
     private TextView status;
     private ImageView image;
     private ProgressBar progressBar;
     private ProgressDialog progressDialog;
     private Bitmap bmp;
+    private Button showNewLocBtn;
 
 
     // instance for firebase storage and StorageReference
@@ -81,14 +84,17 @@ public class ShowStatReportActivity extends AppCompatActivity implements View.On
         repDesc = findViewById(R.id.showRep_desc_txt);
         repSpecie = findViewById(R.id.showRep_specie_txt);
         repTime = findViewById(R.id.showRep_time_txt);
-        locName = findViewById(R.id.showRep_locname);
+        ogLocName = findViewById(R.id.showRep_locname);
+        newLocName = findViewById(R.id.showRep_newLoc_txt);
         status = findViewById(R.id.showRep_status_txt);
         image = findViewById(R.id.img_showRep);
         progressBar = findViewById(R.id.progressBar_ShowRepImg);
+        showNewLocBtn = findViewById(R.id.showRep_showNewLocBtn);
         currentSession = new CurrentSession();
         rep = currentSession.getRep();
         progressDialog = new ProgressDialog(this);
 
+        showNewLocBtn.setOnClickListener(this);
         // get the Firebase storage reference
         storage = FirebaseStorage.getInstance();
         storageReference = storage.getReference();
@@ -110,6 +116,13 @@ public class ShowStatReportActivity extends AppCompatActivity implements View.On
             Log.d("clicked", "image");
             if (!rep.getImgKey().equals("default") && bmp != null) openIMGDialog();
         }
+        else if (view == showNewLocBtn){
+            if (rep.sameLoc(rep.getLocation(), rep.getOgLocation())) Toast.makeText(this, "the report was never picked up", Toast.LENGTH_LONG).show();
+            else {
+                Intent intent = new Intent(this, ShowRepRouteActivity.class);
+                startActivity(intent);
+            }
+        }
     }
 
     @Override
@@ -122,7 +135,7 @@ public class ShowStatReportActivity extends AppCompatActivity implements View.On
                 enableLocationComponent(style);
                 Marker marker = mapboxMap.addMarker(new MarkerOptions()
                         .icon(IconFactory.getInstance(ShowStatReportActivity.this).fromResource(rep.iconColor()))
-                        .position(rep.getLocation())
+                        .position(rep.getOgLocation())
                         .title("מיקום החיה"));
             }
         });
@@ -149,7 +162,9 @@ public class ShowStatReportActivity extends AppCompatActivity implements View.On
         repSpecie.setText(repSpecie.getText() + rep.getSpecie());
         repDesc.setText(repDesc.getText() + rep.getDescription());
         status.setText(status.getText() + rep.getStatus());
-        locName.setText(rep.getLocationName());
+        ogLocName.setText(rep.getOgLocationName());
+        newLocName.setText(newLocName.getText() + rep.getLocationName());
+        if (rep.sameLoc(rep.getLocation(), rep.getOgLocation())) newLocName.setText("");
     }
 
     private void setImgBitmap(){

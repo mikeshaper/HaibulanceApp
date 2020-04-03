@@ -3,7 +3,6 @@ package com.example.haibulance;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -77,8 +76,7 @@ public class ShowStatisticsOnMapActivity extends AppCompatActivity implements On
                             public void onDataChange(DataSnapshot dataSnapshot) {
                                 for (DataSnapshot ds : dataSnapshot.getChildren()) {
                                     Report rep = ds.getValue(Report.class);
-                                    Log.d("gbfbsf", rep.getLocation()+" "+latLng);
-                                    if (rep.sameLoc(latLng)) {
+                                    if (rep.sameLoc(rep.getOgLocation(), latLng)) {
                                         rep.setDatabaseKey(ds.getKey());
                                         currentSession.setRep(rep);
                                         Intent intent = new Intent(ShowStatisticsOnMapActivity.this, ShowStatReportActivity.class);
@@ -118,9 +116,9 @@ public class ShowStatisticsOnMapActivity extends AppCompatActivity implements On
                     {
                         int icon = R.drawable.red_marker;
                         if (rep.getStatus().equals("caseClosed")) icon = R.drawable.green_marker;
-                        LatLng latLng = rep.getLocation();
-                        //if (rep.getNewLoc() != null) latLng = rep.getNewLoc();
-                        Marker marker = map.addMarker(new MarkerOptions()
+                        else if (rep.sameLoc(rep.getOgLocation(), rep.getLocation())) icon = R.drawable.yellow_marker;
+                        LatLng latLng = rep.getOgLocation();
+                        map.addMarker(new MarkerOptions()
                                 .icon(IconFactory.getInstance(ShowStatisticsOnMapActivity.this).fromResource(icon))
                                 .position(latLng)
                                 .title(rep.ToString()));

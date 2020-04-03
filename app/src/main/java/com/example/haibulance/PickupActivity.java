@@ -207,6 +207,7 @@ public class PickupActivity extends AppCompatActivity implements View.OnClickLis
         switch (requestCode) {
             case CHOOSE_DEST_CODE:
                 if (rep._getDestination() != null){
+                    currentSession.getRep().setDestination(rep._getDestination());
                     Intent intent = new Intent(this, NaviActivity.class);
                     startActivity(intent);
                     finish();
