@@ -3,6 +3,7 @@ package com.example.haibulance;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -34,16 +35,20 @@ import java.util.List;
 
 public class ShowStatisticsOnMapActivity extends AppCompatActivity implements OnMapReadyCallback, PermissionsListener {
 
+    private final int SHOW_REP_CODE = 0;
     private MapView mapView;
     private PermissionsManager permissionsManager;
     private MapboxMap map;
     private String requestedMonth;
     private String requestedYear;
+    private CurrentSession currentSession;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Mapbox.getInstance(this, String.valueOf(R.string.access_token));
         setContentView(R.layout.activity_show_statistics_on_map);
+
+        currentSession = new CurrentSession();
 
         mapView = findViewById(R.id.statistics_map);
         mapView.onCreate(savedInstanceState);
@@ -59,43 +64,10 @@ public class ShowStatisticsOnMapActivity extends AppCompatActivity implements On
             @Override
             public void onStyleLoaded(@NonNull Style style) {
                 enableLocationComponent(style);
-                CurrentSession currentSession = new CurrentSession();
                 requestedMonth = currentSession.getRequestedMonth();
                 requestedYear = currentSession.getRequestedYear();
                 addMarkers();
-
-                mapboxMap.setOnMarkerClickListener(new MapboxMap.OnMarkerClickListener() {
-                    @Override
-                    public boolean onMarkerClick(@NonNull Marker marker) {
-                        //int id = (int)marker.getId();
-                        DatabaseReference mDatabase;
-                        LatLng latLng = marker.getPosition();
-                        mDatabase = FirebaseDatabase.getInstance().getReference(String.format("reports/%s/%s", requestedYear, requestedMonth));
-                        ValueEventListener findReportListener = new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                for (DataSnapshot ds : dataSnapshot.getChildren()) {
-                                    Report rep = ds.getValue(Report.class);
-                                    if (rep.sameLoc(rep.getOgLocation(), latLng)) {
-                                        rep.setDatabaseKey(ds.getKey());
-                                        currentSession.setRep(rep);
-                                        Intent intent = new Intent(ShowStatisticsOnMapActivity.this, ShowStatReportActivity.class);
-                                        startActivity(intent);
-                                        return;
-                                    }
-                                }
-                            }
-
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
-                                // Getting Report failed
-                            }
-                        };
-                        mDatabase.addValueEventListener(findReportListener);
-                        return true;
-                    }
-                });
-
+                setOnMarkerClick();
             }
         });
     }
@@ -113,10 +85,11 @@ public class ShowStatisticsOnMapActivity extends AppCompatActivity implements On
                 // Get Report object and use the values to update the UI
                 for (DataSnapshot ds: dataSnapshot.getChildren()) {
                     Report rep = ds.getValue(Report.class);
+                    if (!rep._isNullLoc())
                     {
                         int icon = R.drawable.red_marker;
                         if (rep.getStatus().equals("caseClosed")) icon = R.drawable.green_marker;
-                        else if (rep.sameLoc(rep.getOgLocation(), rep.getLocation())) icon = R.drawable.yellow_marker;
+                        else if (!rep.sameLoc(rep.getOgLocation(), rep.getLocation())) icon = R.drawable.yellow_marker;
                         LatLng latLng = rep.getOgLocation();
                         map.addMarker(new MarkerOptions()
                                 .icon(IconFactory.getInstance(ShowStatisticsOnMapActivity.this).fromResource(icon))
@@ -132,6 +105,51 @@ public class ShowStatisticsOnMapActivity extends AppCompatActivity implements On
             }
         };
         mDatabase.child(requestedMonth).addValueEventListener(reportListener);
+    }
+
+
+    public void setOnMarkerClick(){
+        map.setOnMarkerClickListener(new MapboxMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(@NonNull Marker marker) {
+                //int id = (int)marker.getId();
+                Log.d("zdcfvbz", "marker clicked");
+                DatabaseReference mDatabase;
+                LatLng latLng = marker.getPosition();
+                mDatabase = FirebaseDatabase.getInstance().getReference(String.format("reports/%s/%s", requestedYear, requestedMonth));
+                ValueEventListener findReportListener = new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        for (DataSnapshot ds : dataSnapshot.getChildren()) {
+                            Report rep = ds.getValue(Report.class);
+                            if (rep.sameLoc(rep.getOgLocation(), latLng)) {
+                                rep.setDatabaseKey(ds.getKey());
+                                currentSession.setRep(rep);
+                                Intent intent = new Intent(ShowStatisticsOnMapActivity.this, ShowStatReportActivity.class);
+                                startActivityForResult(intent, SHOW_REP_CODE);
+                                return;
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        // Getting Report failed
+                    }
+                };
+                mDatabase.addValueEventListener(findReportListener);
+                return true;
+            }
+        });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case SHOW_REP_CODE:
+                setOnMarkerClick();
+        }
     }
 
 

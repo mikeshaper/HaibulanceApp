@@ -213,7 +213,10 @@ public class PickupActivity extends AppCompatActivity implements View.OnClickLis
                     finish();
                 }
             case NAVI_CODE:
-                if (rep.getStatus() == "picked") finish();
+                if (rep.getStatus() == "picked") {
+                    rep._setLocation(rep._getDestination());
+                    finish();
+                }
             case MENU_CODE:
                 if (currentSession.isMenuActivityFinished()) finish();
         }

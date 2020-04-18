@@ -156,8 +156,8 @@ public class ChooseDestActivity extends AppCompatActivity implements  View.OnCli
         placesDict.clear();
         try {
             addresses = geocoder.getFromLocationName(addressToSearch, 10);
+            if (addresses.size() == 0) Toast.makeText(ChooseDestActivity.this, "no matches", Toast.LENGTH_SHORT).show();
             for (Address ad: addresses){
-                Log.d("ergsdg", String.valueOf(addresses.size()));
                 placesDict.put(ad.getFeatureName(), new LatLng(ad.getLatitude(), ad.getLongitude()));
             }
         } catch (IOException e) {
@@ -197,7 +197,6 @@ public class ChooseDestActivity extends AppCompatActivity implements  View.OnCli
             }
         });
     }
-
 
     @Override
     public void onMapReady(@NonNull MapboxMap mapboxMap) {

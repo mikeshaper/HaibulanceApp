@@ -22,50 +22,48 @@
 
     <Button
         android:id="@+id/mammals_flo_butt"
-        android:layout_width="168dp"
-        android:layout_height="111dp"
-        android:layout_marginEnd="28dp"
-        android:layout_marginRight="28dp"
-        android:layout_marginBottom="260dp"
-        android:background="@drawable/button_rounded"
+        android:layout_width="0dp"
+        android:layout_height="150dp"
+        android:layout_marginTop="28dp"
+        android:background="@drawable/mammals_img"
         android:text="יונקים"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <Button
-        android:id="@+id/other_flo_butt"
-        android:layout_width="168dp"
-        android:layout_height="111dp"
-        android:layout_marginStart="28dp"
-        android:layout_marginLeft="28dp"
-        android:layout_marginBottom="260dp"
-        android:background="@drawable/button_rounded"
-        android:text="אחר"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:textColor="#FFFFFF"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="@+id/birds_flo_butt"
+        app:layout_constraintHorizontal_bias="0.502"
+        app:layout_constraintStart_toStartOf="@+id/birds_flo_butt"
+        app:layout_constraintTop_toBottomOf="@+id/birds_flo_butt" />
 
     <Button
         android:id="@+id/reptiles_flo_butt"
-        android:layout_width="168dp"
-        android:layout_height="111dp"
-        android:layout_marginStart="28dp"
-        android:layout_marginLeft="28dp"
-        android:layout_marginTop="208dp"
-        android:background="@drawable/button_rounded"
+        android:layout_width="320dp"
+        android:layout_height="150dp"
+        android:layout_marginTop="144dp"
+        android:background="@drawable/reptiles_img"
         android:text="זוחלים"
+        android:textColor="#FFFFFF"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.505"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/animal_icon" />
 
     <Button
         android:id="@+id/birds_flo_butt"
-        android:layout_width="168dp"
-        android:layout_height="111dp"
-        android:layout_marginTop="208dp"
-        android:layout_marginEnd="28dp"
-        android:layout_marginRight="28dp"
-        android:background="@drawable/button_rounded"
+        android:layout_width="0dp"
+        android:layout_height="150dp"
+        android:layout_marginTop="28dp"
+        android:background="@drawable/birds_img"
         android:text="עופות"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:textColor="#FFFFFF"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="@+id/reptiles_flo_butt"
+        app:layout_constraintHorizontal_bias="0.502"
+        app:layout_constraintStart_toStartOf="@+id/reptiles_flo_butt"
+        app:layout_constraintTop_toBottomOf="@+id/reptiles_flo_butt" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

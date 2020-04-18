@@ -102,8 +102,7 @@ public class NaviActivity extends AppCompatActivity implements OnMapReadyCallbac
                 currentSession = new CurrentSession();
                 currentRep = currentSession.getRep();
                 destination = currentRep._getDestination();
-
-                Point rep = Point.fromLngLat(currentRep.getLon(), currentRep.getLat());
+                Point rep = Point.fromLngLat(currentRep._getLon(), currentRep._getLat());
                 Point origin = Point.fromLngLat(lon, lat);
                 Point dest = Point.fromLngLat(destination.getLongitude(), destination.getLatitude());
                 getRoute(origin, dest, rep);
@@ -121,14 +120,17 @@ public class NaviActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     public void startNaivgation(){
-        //FirebaseDatabase.getInstance().getReference("reports").child(currentRep.getDatabaseKey()).child("status").setValue("picked");
-        //FirebaseDatabase.getInstance().getReference("reports").child(currentRep.getDatabaseKey()).child("location").setValue(destination);
         currentRep._setStatus("picked");
         LatLng hospitalLoc = new LatLng(32.0452857, 34.82474); ////המיקום של שער הספארי
-        if(destination == hospitalLoc) currentRep._setStatus("caseClosed");
-        currentRep._setLocation(destination);
+        if(currentRep.sameLoc(destination, hospitalLoc)) {
+            currentRep._setStatus("caseClosed");
+            currentRep._setLocationName("wildlife hospital");
+        }
+        //LatLng latLng = new LatLng(0,0,0);
+        //currentRep._setLocation(latLng);
+        currentRep._setLocation(currentRep._getDestination());
         currentSession.getUser().addPickup();
-        boolean simulateRoute = true;
+        boolean simulateRoute = false;
         NavigationLauncherOptions options = NavigationLauncherOptions.builder()
                 .directionsRoute(currentRoute)
                 .shouldSimulateRoute(simulateRoute)

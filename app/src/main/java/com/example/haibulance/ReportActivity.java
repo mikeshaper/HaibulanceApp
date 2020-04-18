@@ -42,6 +42,10 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.ml.vision.FirebaseVision;
+import com.google.firebase.ml.vision.common.FirebaseVisionImage;
+import com.google.firebase.ml.vision.label.FirebaseVisionImageLabel;
+import com.google.firebase.ml.vision.label.FirebaseVisionImageLabeler;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
@@ -88,7 +92,7 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
 
     private String locnameStr;
     private Geocoder geo;
-    private LatLng latLng = new LatLng();
+    private LatLng latLng;
     private String time;
     private RepTime rawTime;
     // Uri indicates, where the image will be picked from
@@ -97,6 +101,7 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
     private String randID = UUID.randomUUID().toString();
 
     private CurrentSession currentSession;
+    private User currentUser;
     private Report report;
     private StorageReference mStorage;
     private DatabaseReference mDatabase;
@@ -130,7 +135,7 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
 
         progressDialog = new ProgressDialog(this);
         currentSession = new CurrentSession();
-
+        currentUser = currentSession.getUser();
         // get the Firebase  storage reference
         storage = FirebaseStorage.getInstance();
         storageReference = storage.getReference();
@@ -146,6 +151,7 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
         image.setOnClickListener(this);
         locName.setOnClickListener(this);
 
+        latLng = new LatLng();
         LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // here to request the missing permissions, and then overriding
@@ -245,8 +251,7 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     private void uploadData() {
-        User user = currentSession.getUser();
-        report = new Report(specie.getText().toString(), latLng, locnameStr, time, descriptoin.getText().toString(), user.getName(), "unpicked", rawTime);
+        report = new Report(specie.getText().toString(), latLng, locnameStr, time, descriptoin.getText().toString(), currentUser.getName(), "unpicked", rawTime);
         report.setImgKey("default");
         currentSession.setRep(report);
 
@@ -297,6 +302,8 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
         }
     }
 
+    private void ai(){
+    }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -334,11 +341,9 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
 
             case PICK_IMAGE_REQUEST:
                 if (resultCode == RESULT_OK && data != null && data.getData() != null) {
-
                     // Get the Uri of data
                     imgUri = data.getData();
                     try {
-
                         // Setting image on image view using Bitmap
                         Bitmap bitmap = MediaStore
                                 .Images
@@ -346,7 +351,6 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
                                 .getBitmap(getContentResolver(), imgUri);
                         image.setImageBitmap(bitmap);
                     }
-
                     catch (IOException e) {
                         // Log the exception
                         e.printStackTrace();
@@ -356,6 +360,7 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
             case MENU_CODE:
                 if (currentSession.isMenuActivityFinished()) {
                     currentSession.setMenuActivityFinished(false);
+                    currentSession.setOnRepActivity(false);
                     finish();
                 }
         }
@@ -375,7 +380,7 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
         }
         else {
             uploadData();
-            currentSession.getUser().addReport();
+            currentUser.addReport();
         }
     }
 
@@ -389,15 +394,13 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
         //uploadPhoto(myFile);
         Log.d("report created", "rep created");
         RepTime repTime = report.getRawTime();
-        mDatabase = mDatabase.child(String.valueOf(repTime.getYear())).child("4");//String.valueOf(repTime.getMonth()));
+        mDatabase = mDatabase.child(String.valueOf(repTime.getYear())).child(String.valueOf(repTime.getMonth()));
         report._setDatabaseRep(mDatabase);
         mDatabase.push().setValue(report);
         mDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                //Toast.makeText(ReportActivity.this, "success creating a report database", Toast.LENGTH_SHORT).show();
-                //Intent intent = new Intent(ReportActivity.this, MainActivity.class);
-                //startActivity(intent);
+                currentSession.setOnRepActivity(false);
                 finish();
             }
             @Override
@@ -405,6 +408,7 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
                 Toast.makeText(ReportActivity.this, "error creating a report database: " + error, Toast.LENGTH_SHORT).show();
                 //Intent intent = new Intent(ReportActivity.this, MainActivity.class);
                 //startActivity(intent);
+                currentSession.setOnRepActivity(false);
                 finish();
             }
         });
@@ -559,6 +563,7 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
             //Toast.makeText(this, "user location permission not granted", Toast.LENGTH_LONG).show();
             //Intent intent = new Intent(this, MainActivity.class);
             //startActivity(intent);
+            currentSession.setOnRepActivity(false);
             finish();
         }
     }
@@ -612,6 +617,7 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
             case R.id.home_button:
                 //Intent intent = new Intent(this, MainActivity.class);
                 //startActivity(intent);
+                currentSession.setOnRepActivity(false);
                 finish();
                 return true;
             case R.id.radius:
@@ -633,11 +639,5 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
         }
     }
 
-    @Override
-    public void onBackPressed() {
-        //Intent intent = new Intent(this, MainActivity.class);
-        //startActivity(intent);
-        finish();
-    }
 
 }

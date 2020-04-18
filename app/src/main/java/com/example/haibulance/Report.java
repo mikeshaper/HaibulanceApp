@@ -10,7 +10,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 
 public class Report{
-    private int id;
     private String specie;
     private String description;
     private LatLng location;
@@ -82,7 +81,6 @@ public class Report{
     public String getDatabaseKey() {
         return databaseKey;
     }
-    public int getId(){return id;}
     public String getSpecie() {
         return specie;
     }
@@ -108,10 +106,10 @@ public class Report{
     public String getReporterName() {
         return reporterName;
     }
-    public double getLat() {
+    public double _getLat() {
         return location.getLatitude();
     }
-    public double getLon() {
+    public double _getLon() {
         return location.getLongitude();
     }
     public LatLng getLocation(){return location;}
@@ -120,7 +118,7 @@ public class Report{
         this.destination = destination;
     }
     public boolean sameLoc(LatLng latLng, LatLng latLng2){
-        return latLng2.getLatitude() == latLng.getLatitude() && latLng2.getLongitude() == latLng.getLongitude();}
+        return latLng != null && latLng2 != null && latLng2.getLatitude() == latLng.getLatitude() && latLng2.getLongitude() == latLng.getLongitude();}
     public void setOgLocation(LatLng ogLocation) {
         this.ogLocation = ogLocation;
     }
@@ -149,8 +147,11 @@ public class Report{
         this.locationName = locationName;
         databaseRep.child("locationName").setValue(locationName);
     }
+    public boolean _isNullLoc(){
+        return location == null || (location.getLatitude() == 0 && location.getLongitude() == 0);
+    }
 
     public String ToString(){
-        return String.format("%s, %s, %s",specie, description, String.valueOf(destination));
+        return String.format("%s, %s", specie, description);
     }
 }

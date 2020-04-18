@@ -1,6 +1,7 @@
 package com.example.haibulance;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -11,12 +12,14 @@ import android.widget.Button;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class FloraActivity extends AppCompatActivity implements View.OnClickListener {
 
     private Button mammals;
     private Button reptiles;
     private Button birds;
-    private Button other;
 
     private CurrentSession currentSession = new CurrentSession();
 
@@ -28,19 +31,24 @@ public class FloraActivity extends AppCompatActivity implements View.OnClickList
         mammals = findViewById(R.id.mammals_flo_butt);
         reptiles = findViewById(R.id.reptiles_flo_butt);
         birds = findViewById(R.id.birds_flo_butt);
-        other = findViewById(R.id.other_flo_butt);
 
         mammals.setOnClickListener(this);
         reptiles.setOnClickListener(this);
         birds.setOnClickListener(this);
-        other.setOnClickListener(this);
 
     }
 
     @Override
     public void onClick(View v) {
-        if (v == mammals){
-            Intent intent = new Intent(this, FloraImgsActivity.class);
+        if (v == mammals || v == reptiles || v == birds){
+            Map<Button, String> florasDict = new HashMap<>();
+            florasDict.put(mammals, "http://www.tatzpit.com/Site/pages/inPage.asp?catID=532");
+            florasDict.put(reptiles, "http://www.tatzpit.com/Site/pages/inPage.asp?catID=539");
+            florasDict.put(birds, "http://www.tatzpit.com/Site/pages/inPage.asp?catID=9");
+            Intent intent = new Intent();
+            intent.setAction(Intent.ACTION_VIEW);
+            intent.addCategory(Intent.CATEGORY_BROWSABLE);
+            intent.setData(Uri.parse(florasDict.get(v)));
             startActivity(intent);
         }
     }

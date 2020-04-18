@@ -93,11 +93,11 @@ public class ShowRepRouteActivity extends AppCompatActivity implements OnMapRead
                 mapboxMap.addMarker(new MarkerOptions()
                         .icon(IconFactory.getInstance(ShowRepRouteActivity.this).fromResource(R.drawable.red_marker))
                         .position(origin)
-                        .title("מיקום מקורי"));
+                        .title("מיקום מקורי: " + currentRep.getOgLocationName()));
                 mapboxMap.addMarker(new MarkerOptions()
                         .icon(IconFactory.getInstance(ShowRepRouteActivity.this).fromResource(R.drawable.green_marker))
                         .position(destination)
-                        .title("מיקום לאחר איסוף"));
+                        .title("מיקום לאחר איסוף: " + currentRep.getLocationName()));
                 getRoute(orig, dest);
             }
         });

@@ -6,6 +6,7 @@ public class CurrentSession {
     private static User user = new User();
     private static String requestedMonth;
     private static String requestedYear;
+    private boolean onRepActivity;
 
     private static Boolean menuActivityFinished = false;
 
@@ -15,7 +16,7 @@ public class CurrentSession {
         return report;
     }
     public void setRep(Report rep) {
-        this.report = rep;//new Report(rep);
+        this.report = rep;
     }
     public User getUser() {
         return user;
@@ -34,6 +35,12 @@ public class CurrentSession {
     }
     public static void setRequestedYear(String requestedYear) {
         CurrentSession.requestedYear = requestedYear;
+    }
+    public void setOnRepActivity(boolean onRepActivity) {
+        this.onRepActivity = onRepActivity;
+    }
+    public boolean isOnRepActivity() {
+        return onRepActivity;
     }
 
     public static Boolean isMenuActivityFinished() {

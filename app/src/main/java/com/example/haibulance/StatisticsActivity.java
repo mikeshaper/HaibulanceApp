@@ -4,6 +4,9 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -11,6 +14,7 @@ import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
@@ -95,7 +99,6 @@ public class StatisticsActivity extends AppCompatActivity implements View.OnClic
     public void setGraph(){
         try {
             LineGraphSeries<DataPoint> series = new LineGraphSeries< >(new DataPoint[] {});
-
             mDatabase = FirebaseDatabase.getInstance().getReference("reports").child(yearSelected);
             ValueEventListener reportListener = new ValueEventListener() {
                 @RequiresApi(api = Build.VERSION_CODES.O)
@@ -103,13 +106,19 @@ public class StatisticsActivity extends AppCompatActivity implements View.OnClic
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     int counter = 0;
                     for (DataSnapshot ds: dataSnapshot.getChildren()) {
+                        //if (counter == 2) break;
+                        //Log.d("position", String.format("X: %s, Y: %s", String.valueOf(dataPoint.getX()), String.valueOf(dataPoint.getY())));
                         DataPoint dataPoint = new DataPoint(Integer.valueOf(ds.getKey()), ds.getChildrenCount());
-                        //Log.d("sdfgfg", String.format("X: %s, Y: %s", String.valueOf(dataPoint.getX()), String.valueOf(dataPoint.getY())));
                         series.appendData(dataPoint, false, 12);
                         counter++;
                     }
+                    if (counter%2 == 0){ //solves a problem that graph will not show the last point
+                        DataPoint dataPoint = new DataPoint(counter+1, 0);
+                        series.appendData(dataPoint, false, 12);
+                    }
                     series.setDrawDataPoints(true);
                     graph.addSeries(series);
+                    graph.setMinimumWidth(0);
                 }
                 @Override
                 public void onCancelled(DatabaseError databaseError) {
@@ -185,4 +194,39 @@ public class StatisticsActivity extends AppCompatActivity implements View.OnClic
             startActivity(intent);
         }
     }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.items_menu, menu);
+        return true;
+    }
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.home_button:
+                Intent intent = new Intent(this, MainActivity.class);
+                startActivity(intent);
+                finish();
+                return true;
+            case R.id.radius:
+                Intent intent1 = new Intent(this, ChooseRadiusActivity.class);
+                startActivity(intent1);
+                return true;
+            case R.id.more:
+                return true;
+            case R.id.detailsItem:
+                Intent intent2 = new Intent(this, UserDetailsActivity.class);
+                startActivity(intent2);
+                return true;
+            case R.id.edDetailsItem:
+                Intent intent3 = new Intent(this, EditDetailsActivity.class);
+                startActivity(intent3);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
 }

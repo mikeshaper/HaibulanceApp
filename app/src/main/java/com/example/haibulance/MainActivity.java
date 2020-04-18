@@ -1,5 +1,6 @@
 package com.example.haibulance;
 //haibulance id in google ads: ca-app-pub-5099612993587566~7360269361
+
 import android.Manifest;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -172,16 +173,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Log.d("clicked", "flora");
             Intent intent = new Intent(this, FloraActivity.class);
             startActivity(intent);
-        } else if (view == report) {
+        }
+        else if (view == report) {
+            currentSession.setOnRepActivity(false);
             if (myLocation != null) {
                 Log.d("clicked", "report");
-                //String year = String.valueOf(LocalDateTime.now().getYear());
-                //int month = LocalDateTime.now().getMonthValue();
-                //if (month == 0);
-                //checkRepExists(year, String.valueOf(month-1));
-                //checkRepExists(year, String.valueOf(month));
                 checkRepExists();
-
             }
             else Toast.makeText(MainActivity.this, "sorry, there is a problem with finding your location", Toast.LENGTH_LONG).show();
 
@@ -292,10 +289,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
     }
 
-    //private boolean repActStarted = false;
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void checkRepExists() {
-        //repActStarted = false;
         final boolean[] makeRep = {true};
         mDatabase = FirebaseDatabase.getInstance().getReference(String.format("reports/%s/%s", year, month));
         ValueEventListener findReportListener = new ValueEventListener() {
@@ -306,23 +301,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 double lon = myLocation.getLongitude();
                 for (DataSnapshot ds : dataSnapshot.getChildren()) {
                     Report rep = ds.getValue(Report.class);
-                    float[] distance = new float[1];
-                    LatLng repLoc = rep.getLocation();
-                    Location.distanceBetween(lat, lon, repLoc.getLatitude(), repLoc.getLongitude(), distance);
-                    Log.d("dvadav", String.valueOf(repActStarted));
-                    if (distance[0] < 100 && !repActStarted && rep.getStatus().equals("unpicked")) {
-                        Log.d("dclicked", "creating dialog.. " + distance[0]);
-                        if (!createCloseRepDialog(rep.ToString())){
-                            makeRep[0] = false;
-                            return;
+                    if (!rep._isNullLoc()) {
+                        float[] distance = new float[1];
+                        LatLng repLoc = rep.getLocation();
+                        Location.distanceBetween(lat, lon, repLoc.getLatitude(), repLoc.getLongitude(), distance);
+                        float repAge = 0;
+                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                            repAge = rep.getRawTime().ageInHrs();
                         }
-                        //while (!dialogEnded) {Log.d("dclicked", "dialog isnt ended yet");}
-                        //dialogEnded= false;
+                        if (distance[0] < 100 && !currentSession.isOnRepActivity() && !rep.getStatus().equals("caseClosed") && repAge < 24.0 && !rep.sameLoc(rep.getLocation(), hospitalLoc)) {
+                            Log.d("dclicked", "creating dialog.. " + distance[0]);
+                            if (!createCloseRepDialog(rep.ToString())) {
+                                makeRep[0] = false;
+                                return;
+                            }
+                            //while (!dialogEnded) {Log.d("dclicked", "dialog isnt ended yet");}
+                            //dialogEnded= false;
+                        }
                     }
                 }
-                if (makeRep[0] && !repActStarted){
+                if (makeRep[0] && !currentSession.isOnRepActivity()){
                     Log.d("dclicked", "starting report...");
-                    repActStarted = true;
+                    currentSession.setOnRepActivity(true);
                     Intent intent = new Intent(MainActivity.this, ReportActivity.class);
                     startActivityForResult(intent, REPORT_CODE);
                 }
@@ -335,10 +335,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mDatabase.addValueEventListener(findReportListener);
     }
 
-    private boolean repActStarted = false;
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void checkRepExists2() {
-        repActStarted = false;
         final boolean[] makeRep = {true};
         int year = LocalDateTime.now().getYear();
         int month = LocalDateTime.now().getMonthValue();
@@ -356,16 +354,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         float[] distance = new float[1];
                         LatLng repLoc = rep.getLocation();
                         Location.distanceBetween(lat, lon, repLoc.getLatitude(), repLoc.getLongitude(), distance);
-                        if (distance[0] < 100 && !repActStarted && rep.getStatus().equals("unpicked")) {
+                        if (distance[0] < 100 && !currentSession.isOnRepActivity() && rep.getStatus().equals("unpicked")) {
                             Log.d("dclicked", "creating dialog.. " + distance[0]);
                             if (!createCloseRepDialog(rep.ToString())) {
                                 makeRep[0] = false;
                                 return;
                             }
                         }
-                        if (finalI == month-1 && makeRep[0] && !repActStarted) {
+                        if (finalI == month-1 && makeRep[0] && !currentSession.isOnRepActivity()) {
                             Log.d("dclicked", "starting report...");
-                            repActStarted = true;
+                            currentSession.setOnRepActivity(true);
                             Intent intent = new Intent(MainActivity.this, ReportActivity.class);
                             startActivityForResult(intent, REPORT_CODE);
                         }
@@ -415,6 +413,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return makeRep[0];
     }
 
+    LatLng hospitalLoc = new LatLng(32.0452857, 34.82474); ////המיקום של שער הספארי
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void addMarkers(){
         map.clear();
@@ -422,7 +421,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         int year = LocalDateTime.now().getYear();
         int month = LocalDateTime.now().getMonthValue();
         mDatabase = FirebaseDatabase.getInstance().getReference("reports").child(String.valueOf(year));
-        for (int i = month-1; i <=month; i++) {
+        for (int i = month-1; i <=month; i++)
+        {
             ValueEventListener reportListener = new ValueEventListener() {
                 @RequiresApi(api = Build.VERSION_CODES.O)
                 @Override
@@ -431,10 +431,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     for (DataSnapshot ds: dataSnapshot.getChildren()) {
                         Report rep = ds.getValue(Report.class);
                         float repAge = rep.getRawTime().ageInHrs();
-                        LatLng hospitalLoc = new LatLng(32.0452857, 34.82474); ////המיקום של שער הספארי
                         LatLng myLatLng = new LatLng(myLocation.getLatitude(), myLocation.getLongitude());
                         boolean inRadius = currentUser.RepInRad(rep, myLatLng);
-                        if (repAge > 24.0 || rep.getStatus().equals("caseClosed") || rep.sameLoc(rep.getLocation(), hospitalLoc) || !inRadius){Log.d("repfaild", String.format("age: %s, status: %s", repAge, rep.getStatus()));}
+                        if (rep._isNullLoc() || repAge > 24.0 || rep.getStatus().equals("caseClosed") || rep.sameLoc(rep.getLocation(), hospitalLoc) || !inRadius){}
                         else {
                             Marker marker = map.addMarker(new MarkerOptions()
                                     .icon(IconFactory.getInstance(MainActivity.this).fromResource(rep.iconColor()))
@@ -729,7 +728,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
             case REPORT_CODE:
-                repActStarted = false;
+                //currentSession.setOnRepActivity(false);
             case MENU_CODE:
                 map.clear();
                 addMarkers();
@@ -784,6 +783,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onLocationChanged(Location location) {
         myLocation = location;
+        if(map == null) return;
         map.clear();
         addMarkers();
         drawPolygonCircle(location);

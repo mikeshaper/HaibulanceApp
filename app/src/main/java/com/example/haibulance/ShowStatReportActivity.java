@@ -94,7 +94,8 @@ public class ShowStatReportActivity extends AppCompatActivity implements View.On
         rep = currentSession.getRep();
         progressDialog = new ProgressDialog(this);
 
-        showNewLocBtn.setOnClickListener(this);
+        if (rep.sameLoc(rep.getLocation(), rep.getOgLocation())) showNewLocBtn.setVisibility(View.GONE);
+        else showNewLocBtn.setOnClickListener(this);
         // get the Firebase storage reference
         storage = FirebaseStorage.getInstance();
         storageReference = storage.getReference();
@@ -117,7 +118,10 @@ public class ShowStatReportActivity extends AppCompatActivity implements View.On
             if (!rep.getImgKey().equals("default") && bmp != null) openIMGDialog();
         }
         else if (view == showNewLocBtn){
-            if (rep.sameLoc(rep.getLocation(), rep.getOgLocation())) Toast.makeText(this, "the report was never picked up", Toast.LENGTH_LONG).show();
+            if (rep.sameLoc(rep.getLocation(), rep.getOgLocation())) {
+                Toast.makeText(this, "the report was never picked up", Toast.LENGTH_LONG).show();
+                showNewLocBtn.setVisibility(View.GONE);
+            }
             else {
                 Intent intent = new Intent(this, ShowRepRouteActivity.class);
                 startActivity(intent);
