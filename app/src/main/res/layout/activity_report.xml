@@ -39,7 +39,7 @@
         mapbox:mapbox_cameraZoom="12">
     </com.mapbox.mapboxsdk.maps.MapView>
 
-    <EditText
+    <AutoCompleteTextView
         android:id="@+id/specie_edtxt"
         android:layout_width="0dp"
         android:layout_height="50dp"

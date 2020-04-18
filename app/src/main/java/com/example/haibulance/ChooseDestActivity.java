@@ -26,7 +26,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
@@ -72,8 +71,7 @@ public class ChooseDestActivity extends AppCompatActivity implements  View.OnCli
     private Button okBtn;
     private Button cancleBtn;
     private TextView destName;
-    private AutoCompleteTextView autoCompleteTextView;
-    private RecyclerView recyclerView;
+    private AutoCompleteTextView autoCompleteDestName;
 
 
     private LatLng dest;
@@ -111,9 +109,9 @@ public class ChooseDestActivity extends AppCompatActivity implements  View.OnCli
         placesDict  = new HashMap<String, LatLng>();
 
 
-        autoCompleteTextView = findViewById(R.id.autoTXT);
+        autoCompleteDestName = findViewById(R.id.autoTXT);
 
-        autoCompleteTextView.setThreshold(1); //will start working from first character
+        autoCompleteDestName.setThreshold(1); //will start working from first character
 
         currentSession = new CurrentSession();
         currentRep = currentSession.getRep();
@@ -147,7 +145,7 @@ public class ChooseDestActivity extends AppCompatActivity implements  View.OnCli
     }
 
     public void showOptions(){
-        addressToSearch = String.valueOf(autoCompleteTextView.getText());
+        addressToSearch = String.valueOf(autoCompleteDestName.getText());
         if (addressToSearch == null) return;
 
         progressBar.setVisibility(View.VISIBLE);
@@ -173,16 +171,16 @@ public class ChooseDestActivity extends AppCompatActivity implements  View.OnCli
         String[] names = placesDict.keySet().toArray(new String[placesDict.size()]);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>
                 (ChooseDestActivity.this, android.R.layout.select_dialog_item, names);
-        autoCompleteTextView.setAdapter(adapter);
+        autoCompleteDestName.setAdapter(adapter);
         progressBar.setVisibility(View.INVISIBLE);
-        autoCompleteTextView.showDropDown();
-        autoCompleteTextView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        autoCompleteDestName.showDropDown();
+        autoCompleteDestName.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 //Point point = placesDict.get(String.valueOf(autoCompleteTextView.getText()));
                 //LatLng latLng = new LatLng(point.latitude(), point.longitude());
-                LatLng latLng = placesDict.get(String.valueOf(autoCompleteTextView.getText()));
-                if (true){//isLegalDest(latLng)) {
+                LatLng latLng = placesDict.get(String.valueOf(autoCompleteDestName.getText()));
+                if (isLegalDest(latLng)) {
                     map.clear();
                     map.addMarker(new MarkerOptions()
                             .icon(IconFactory.getInstance(ChooseDestActivity.this).fromResource(R.drawable.green_marker))

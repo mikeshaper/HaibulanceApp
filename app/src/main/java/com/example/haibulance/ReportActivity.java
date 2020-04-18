@@ -23,6 +23,9 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -42,6 +45,11 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.ml.common.modeldownload.FirebaseModelDownloadConditions;
+import com.google.firebase.ml.naturallanguage.FirebaseNaturalLanguage;
+import com.google.firebase.ml.naturallanguage.translate.FirebaseTranslateLanguage;
+import com.google.firebase.ml.naturallanguage.translate.FirebaseTranslator;
+import com.google.firebase.ml.naturallanguage.translate.FirebaseTranslatorOptions;
 import com.google.firebase.ml.vision.FirebaseVision;
 import com.google.firebase.ml.vision.common.FirebaseVisionImage;
 import com.google.firebase.ml.vision.label.FirebaseVisionImageLabel;
@@ -84,11 +92,12 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
     private final int MENU_CODE = 7;
 
     private TextView hour_;
-    private EditText specie;
+    private EditText specieedtxt;
     private Button reportButt;
     private EditText descriptoin;
     private TextView locName;
     private ImageView image;
+    private AutoCompleteTextView specie;
 
     private String locnameStr;
     private Geocoder geo;
@@ -125,13 +134,17 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
 
         rawTime = new RepTime(LocalDateTime.now());
         geo = new Geocoder(this);
-        specie = findViewById(R.id.specie_edtxt);
         hour_ = findViewById(R.id.hour_tv);
         reportButt = findViewById(R.id.report_butt);
         descriptoin = findViewById(R.id.dscr_edtxt);
         locName = findViewById(R.id.report_locname);
         image = findViewById(R.id.img_pickup);
         hour_.setText(rawTime.ToString());
+
+
+        specie = findViewById(R.id.specie_edtxt);
+        specie.setThreshold(1); //will start working from first character
+
 
         progressDialog = new ProgressDialog(this);
         currentSession = new CurrentSession();
@@ -150,6 +163,7 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
         reportButt.setOnClickListener(this);
         image.setOnClickListener(this);
         locName.setOnClickListener(this);
+        specie.setOnClickListener(this);
 
         latLng = new LatLng();
         LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
@@ -173,6 +187,9 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
         }
         else if (view == image) {
                 createIMGDialog();
+        }
+        else if (view == specie){
+            specie.showDropDown();
         }
     }
 
@@ -302,7 +319,110 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
         }
     }
 
-    private void ai(){
+    private void aiRecognition(Uri uri){
+        FirebaseVisionImage image1;
+        try {
+            image1 = FirebaseVisionImage.fromFilePath(getApplicationContext(), uri);
+            FirebaseVisionImageLabeler labeler = FirebaseVision.getInstance()
+                    .getOnDeviceImageLabeler();
+            labeler.processImage(image1)
+                    .addOnSuccessListener(new OnSuccessListener<List<FirebaseVisionImageLabel>>() {
+                        @Override
+                        public void onSuccess(List<FirebaseVisionImageLabel> labels) {
+                            ArrayAdapter<String> adapter = new ArrayAdapter<String>
+                                    (ReportActivity.this, android.R.layout.select_dialog_item);
+                            // Task completed successfully
+                            for (FirebaseVisionImageLabel label: labels) {
+                                String text = label.getText();
+                                String entityId = label.getEntityId();
+                                float confidence = label.getConfidence();
+                                adapter.add(String.format("%s (%s)", text, confidence));
+                                Log.d("ai result: ", String.format("text: %s, entryid: %s, confi: %s", text, entityId, confidence));
+
+
+
+
+
+
+                                Log.d("translated text: ", "translating...");
+                                // Create an English-Hebrew translator:
+                                FirebaseTranslatorOptions options =
+                                        new FirebaseTranslatorOptions.Builder()
+                                                .setSourceLanguage(FirebaseTranslateLanguage.EN)
+                                                .setTargetLanguage(FirebaseTranslateLanguage.HE)
+                                                .build();
+
+                                final FirebaseTranslator englishHebrewTranslator =
+                                        FirebaseNaturalLanguage.getInstance().getTranslator(options);
+
+                                FirebaseModelDownloadConditions conditions = new FirebaseModelDownloadConditions.Builder()
+                                        .requireWifi()
+                                        .build();
+                                englishHebrewTranslator.downloadModelIfNeeded(conditions)
+                                        .addOnSuccessListener(
+                                                new OnSuccessListener<Void>() {
+                                                    @Override
+                                                    public void onSuccess(Void v) {
+                                                        // Model downloaded successfully. Okay to start translating.
+                                                        // (Set a flag, unhide the translation UI, etc.)
+                                                    }
+                                                })
+                                        .addOnFailureListener(
+                                                new OnFailureListener() {
+                                                    @Override
+                                                    public void onFailure(@NonNull Exception e) {
+                                                        // Model couldn’t be downloaded or other internal error.
+                                                        // ...
+                                                    }
+                                                });
+
+                                englishHebrewTranslator.translate(text)
+                                        .addOnSuccessListener(
+                                                new OnSuccessListener<String>() {
+                                                    @Override
+                                                    public void onSuccess(@NonNull String translatedText) {
+                                                        Log.d("translated text: ", translatedText);
+                                                        adapter.add(String.format("%s (%s)", translatedText, confidence));
+                                                    }
+                                                })
+                                        .addOnFailureListener(
+                                                new OnFailureListener() {
+                                                    @Override
+                                                    public void onFailure(@NonNull Exception e) {
+                                                        // Error.
+                                                        // ...
+                                                    }
+                                                });
+                            }
+
+
+
+
+
+
+
+
+                            specie.setAdapter(adapter);
+                            specie.showDropDown();
+                            specie.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                @Override
+                                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                                    specie.setText(adapter.getItem(i).split(" ")[0]);
+                                }
+                            });
+                        }
+
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            // Task failed with an exception
+                            // ...
+                        }
+                    });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -329,6 +449,7 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
                         }
                         imageBitmap.compress(Bitmap.CompressFormat.PNG, 100, fOut); // saving the Bitmap to a file compressed as a JPEG with 85% compression rate
                         imgUri = Uri.fromFile(file);
+                        aiRecognition(imgUri);
                         fOut.flush(); // Not really required
                         fOut.close(); // do not forget to close the stream
                         MediaStore.Images.Media.insertImage(getContentResolver(),file.getAbsolutePath(),file.getName(),file.getName());
@@ -355,6 +476,7 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
                         // Log the exception
                         e.printStackTrace();
                     }
+                    aiRecognition(imgUri);
                 }
 
             case MENU_CODE:
