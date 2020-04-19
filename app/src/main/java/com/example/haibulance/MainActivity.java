@@ -370,7 +370,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         dialog.findViewById(R.id.left_dialog_btn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d("dclicked", "left");
                 dialog.dismiss();
                 makeRep[0] = false;
                 handler.sendMessage(handler.obtainMessage());
@@ -379,7 +378,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         dialog.findViewById(R.id.right_dialog_btn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d("dclicked", "right");
                 dialog.dismiss();
                 handler.sendMessage(handler.obtainMessage());
             }
@@ -449,7 +447,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 currentSession.setUser(currentUser);
                 circleRadius = currentUser.getReportsRadius();
                 drawPolygonCircle(myLocation);
-                Log.d("checkUser", currentSession.getUser().ToString());
             }
 
             @Override

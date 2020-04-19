@@ -172,7 +172,7 @@ public class NaviActivity extends AppCompatActivity implements OnMapReadyCallbac
                     @Override
                     public void onResponse(Call<DirectionsResponse> call, Response<DirectionsResponse> response) {
                         if (response.body() == null || response.body().routes().size() == 0){
-                            Log.d("navigationactivity", "no routs found ):");
+                            Log.d("NaviActivity", "no routs found ):");
                             return;
                         }
                         // Route fetched from NavigationRoute

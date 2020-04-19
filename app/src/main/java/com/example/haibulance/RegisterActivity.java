@@ -166,7 +166,7 @@ public class RegisterActivity extends FragmentActivity implements View.OnClickLi
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                     @Override
                     public void onSuccess(DocumentReference documentReference) {
-                        Log.d("mydatabase", "DocumentSnapshot added with ID: " + documentReference.getId() + ", auth id:" + id);
+                        Log.d("myDatabase", "DocumentSnapshot added with ID: " + documentReference.getId() + ", auth id:" + id);
                         Toast.makeText(RegisterActivity.this, "success creating a user database", Toast.LENGTH_SHORT).show();
 
                     }
@@ -174,7 +174,7 @@ public class RegisterActivity extends FragmentActivity implements View.OnClickLi
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.w("mydatabase", "Error adding document", e);
+                        Log.w("myDatabase", "Error adding document", e);
                         Toast.makeText(RegisterActivity.this, "error creating a user database", Toast.LENGTH_SHORT).show();
                     }
                 });

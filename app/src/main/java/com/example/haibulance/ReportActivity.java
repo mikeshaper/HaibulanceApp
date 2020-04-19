@@ -112,6 +112,7 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
     // Uri indicates where the image will be picked from
     private Uri imgUri;
     private String randID = UUID.randomUUID().toString();
+    private String[] allAnimalsSpecies;
 
     private CurrentSession currentSession;
     private User currentUser;
@@ -168,7 +169,11 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
         specie.setOnClickListener(this);
         aiSwitch.setOnClickListener(this);
 
-        names = getString(R.string.animals).split(" ");//namesStr.split("\n");
+        allAnimalsSpecies = getString(R.string.animals).split(" ");
+        adapter = new ArrayAdapter<String>
+                (ReportActivity.this, android.R.layout.select_dialog_item);
+        adapter.addAll(allAnimalsSpecies);
+        specie.setAdapter(adapter);
 
         latLng = new LatLng();
         LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
@@ -415,7 +420,6 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
                                                 new OnSuccessListener<String>() {
                                                     @Override
                                                     public void onSuccess(@NonNull String translatedText) {
-                                                        Log.d("translated text: ", translatedText);
                                                         if (isAnimal) onlyAnimalsAdapter.add(String.format("%s (%s)", translatedText, confidence));
                                                         adapter.add(String.format("%s (%s)", translatedText, confidence));
                                                     }
@@ -454,17 +458,13 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
         }
     }
 
-    private String[] names;
 
     /**
      * @param str the recognized object
      * @return if the object is animal
      */
     public boolean checkIfAnimal(String str){
-        //Map<Character, String[]> letterToArray = new HashMap<>();
-        //letterToArray.put('p', P);
-        Log.d("first char: ", ""+str.charAt(0));
-        List<String> lst = Arrays.asList(names);//letterToArray.get('p'));
+        List<String> lst = Arrays.asList(allAnimalsSpecies);
         return lst.contains(str);
     }
 
@@ -497,7 +497,6 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
      */
     public void writeToDatabase(Report report) {
         //uploadPhoto(myFile);
-        Log.d("report created", "rep created");
         RepTime repTime = report.getRawTime();
         mDatabase = mDatabase.child(String.valueOf(repTime.getYear())).child(String.valueOf(repTime.getMonth()));
         report._setDatabaseRep(mDatabase);

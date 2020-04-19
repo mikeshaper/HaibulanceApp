@@ -9,7 +9,6 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -255,25 +254,7 @@ public class ChooseDestActivity extends AppCompatActivity implements  View.OnCli
                 List<CarmenFeature> results = response.body().features();
                 if (results.size() > 0) {
                     for (int i = 0; i < results.size() && placesDict.size() <= 5; i++) {
-                        CarmenFeature cf = results.get(i);
-                        //Log.d("sfgdfg", "matching place name: " + cf.matchingPlaceName());
-                        //Log.d("sfgdfg*", "place name: " + cf.placeName());
-                        //Log.d("sfgdfg", "address: " + cf.address());
-                        //Log.d("sfgdfg*", "center: " + cf.center());
-                        //Log.d("sfgdfg", "text: " + cf.text());
-
-                        //if in israel
-
-                        //placesDict.put(cf.placeName(), cf.center());
-                        Log.d("ddd", placesDict.toString());
                     }
-                    //Point firstResultPoint = results.get(0).center();
-                    //LatLng latLng = new LatLng(firstResultPoint.latitude(), firstResultPoint.longitude());
-                    //if (!isLegalDest(latLng)) return;
-                    //destName.setText(results.get(0).placeName());
-                    //map.clear();
-                    //addMarker(map, currentRep.getLocation(), "report");
-                    //addMarker(map, latLng, firstResultPoint.toString());
 
                 } else {
                     // No result for your request were found.
@@ -326,7 +307,6 @@ public class ChooseDestActivity extends AppCompatActivity implements  View.OnCli
                     @Override
                     public void onResponse(Call<DirectionsResponse> call, Response<DirectionsResponse> response) {
                         if (response.body() == null || response.body().routes().size() == 0){
-                            Log.d("ChooseDest", "no routs found ):");
                             return;
                         }
                         // Route fetched from NavigationRoute
@@ -343,7 +323,6 @@ public class ChooseDestActivity extends AppCompatActivity implements  View.OnCli
                     }
                     @Override
                     public void onFailure(Call<DirectionsResponse> call, Throwable t) {
-                        Log.d("ChooseDestActivity", t.getMessage());
                     }
                 });
     }

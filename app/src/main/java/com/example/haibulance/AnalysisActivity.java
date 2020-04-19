@@ -3,7 +3,6 @@ package com.example.haibulance;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -135,8 +134,6 @@ public class AnalysisActivity extends AppCompatActivity implements View.OnClickL
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     int counter = 0;
                     for (DataSnapshot ds: dataSnapshot.getChildren()) {
-                        //if (counter == 2) break;
-                        //Log.d("position", String.format("X: %s, Y: %s", String.valueOf(dataPoint.getX()), String.valueOf(dataPoint.getY())));
                         DataPoint dataPoint = new DataPoint(Integer.valueOf(ds.getKey()), ds.getChildrenCount());
                         series.appendData(dataPoint, false, 12);
                         counter++;
@@ -181,7 +178,6 @@ public class AnalysisActivity extends AppCompatActivity implements View.OnClickL
             public String formatLabel(double value, boolean isValueX) {
                 int month = (int)value;
                 if (isValueX && month > 0) {
-                    Log.d("value: ", String.valueOf(value));
                     String monthName = new DateFormatSymbols().getMonths()[month-1];
                     return monthName.substring(0,3);
                     //return "Month " + super.formatLabel(value, isValueX);
