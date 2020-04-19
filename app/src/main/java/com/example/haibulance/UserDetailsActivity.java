@@ -14,6 +14,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class UserDetailsActivity extends AppCompatActivity implements View.OnClickListener {
 
+    private final int MENU_CODE = 0;
+
     private CurrentSession currentSession;
     private User currentUser;
 
@@ -26,6 +28,9 @@ public class UserDetailsActivity extends AppCompatActivity implements View.OnCli
     private Button editBtn;
 
 
+    /**
+     * the first function to be entered when the app runs. includes variables setting.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,6 +57,10 @@ public class UserDetailsActivity extends AppCompatActivity implements View.OnCli
         editBtn.setOnClickListener(this);
     }
 
+    /**
+     * this function is activated when one of the views that I set onclicklistener on is been clicked.
+     * @param view the view that was clicked
+     */
     @Override
     public void onClick(View view) {
         if (view == editBtn) {
@@ -61,7 +70,12 @@ public class UserDetailsActivity extends AppCompatActivity implements View.OnCli
         }
     }
 
-
+    /**
+     * called when an intent that was started for activity result is finished.
+     * @param requestCode the code entered when the intent was started
+     * @param resultCode the result code of the intent
+     * @param data the data returned by the intent (if there was any)
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -73,8 +87,11 @@ public class UserDetailsActivity extends AppCompatActivity implements View.OnCli
         }
     }
 
-
-    private final int MENU_CODE = 1;
+    /**
+     * activate the option menu at the top of the screen
+     * @param menu the menu to activate
+     * @return true (the menu was activated successfully)
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();

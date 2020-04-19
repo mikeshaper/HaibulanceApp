@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/mapbox_navigation_route_alternative_color"
     android:orientation="vertical"
-    tools:context=".StatisticsActivity">
+    tools:context=".AnalysisActivity">
 
 
     <TextView
@@ -27,12 +27,9 @@
         android:layout_width="389dp"
         android:layout_height="230dp"
         android:layout_marginTop="32dp"
-        android:layout_marginBottom="100dp"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/graphView"
-        app:layout_constraintVertical_bias="1.0" />
+        app:layout_constraintTop_toBottomOf="@+id/graphView" />
 
     <com.jjoe64.graphview.GraphView
         android:id="@+id/graphView"

@@ -36,6 +36,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     private ProgressDialog progressDialog;
 
+    /**
+     * the first function to be entered when the app runs. includes variables setting.
+     */
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
@@ -50,21 +54,21 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
         progressDialog = new ProgressDialog(this);
 
-        //if (firebaseAuth.getCurrentUser() != null){
-        //Toast.makeText(LoginActivity.this, "hello [UserName]!", Toast.LENGTH_SHORT).show();
-        //loginUserDemo();}
-
         back_to_regi.setOnClickListener(this);
         login_button.setOnClickListener(this);
     }
 
+    /**
+     * this function is activated when one of the views that I set onclicklistener on is been clicked.
+     * @param view the view that was clicked
+     */
     @Override
     public void onClick(View view) {
         if (view == login_button) {
             Log.d("clicked", "login");
-            if (login_email.getText() == null && login_password.getText() == null) {
+            if (TextUtils.isEmpty(login_password.getText().toString()) && TextUtils.isEmpty(login_email.getText().toString())) {
                 if (firebaseAuth.getCurrentUser() != null)
-                    createDialog();
+                    createLoginAsDialog();
             }
             else loginUser();
         } else if (view == back_to_regi) {
@@ -74,10 +78,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     private void loginUser() {
         String password = login_password.getText().toString();
-        //Log.println(Log.INFO ,"RegisterActivity", "password s is: " + password);
         String email = login_email.getText().toString();
-        //Log.println(Log.INFO ,"RegisterActivity", "email s is: " + email);
-
 
         if (TextUtils.isEmpty(email)) {
             Toast.makeText(LoginActivity.this, "please enter your email", Toast.LENGTH_SHORT).show();
@@ -121,7 +122,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         finish();
     }
 
-    public void createDialog() {
+    /**
+     * creates a dialog to ask the user if he wants to enter as the user found on this device by firebase authentication
+     */
+    public void createLoginAsDialog() {
         final AlertDialog dialog = new AlertDialog.Builder(LoginActivity.this)
                 .show();
         dialog.setContentView(R.layout.enter_as_dialog);

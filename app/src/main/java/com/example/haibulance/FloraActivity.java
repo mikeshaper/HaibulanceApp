@@ -17,12 +17,17 @@ import java.util.Map;
 
 public class FloraActivity extends AppCompatActivity implements View.OnClickListener {
 
+    private final int MENU_CODE = 1;
+
     private Button mammals;
     private Button reptiles;
     private Button birds;
 
     private CurrentSession currentSession = new CurrentSession();
 
+    /**
+     * the first function to be entered when the app runs. includes variables setting.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,9 +43,13 @@ public class FloraActivity extends AppCompatActivity implements View.OnClickList
 
     }
 
+    /**
+     * this function is activated when one of the views that I set onclicklistener on is been clicked.
+     * @param view the view that was clicked
+     */
     @Override
-    public void onClick(View v) {
-        if (v == mammals || v == reptiles || v == birds){
+    public void onClick(View view) {
+        if (view == mammals || view == reptiles || view == birds){
             Map<Button, String> florasDict = new HashMap<>();
             florasDict.put(mammals, "http://www.tatzpit.com/Site/pages/inPage.asp?catID=532");
             florasDict.put(reptiles, "http://www.tatzpit.com/Site/pages/inPage.asp?catID=539");
@@ -48,11 +57,17 @@ public class FloraActivity extends AppCompatActivity implements View.OnClickList
             Intent intent = new Intent();
             intent.setAction(Intent.ACTION_VIEW);
             intent.addCategory(Intent.CATEGORY_BROWSABLE);
-            intent.setData(Uri.parse(florasDict.get(v)));
+            intent.setData(Uri.parse(florasDict.get(view)));
             startActivity(intent);
         }
     }
 
+    /**
+     * called when an intent that was started for activity result is finished.
+     * @param requestCode the code entered when the intent was started
+     * @param resultCode the result code of the intent
+     * @param data the data returned by the intent (if there was any)
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -63,8 +78,12 @@ public class FloraActivity extends AppCompatActivity implements View.OnClickList
                 }
         }
     }
-
-    private final int MENU_CODE = 1;
+    
+    /**
+     * activate the option menu at the top of the screen
+     * @param menu the menu to activate
+     * @return true (the menu was activated successfully)
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();

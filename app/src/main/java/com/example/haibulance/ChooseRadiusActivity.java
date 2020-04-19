@@ -100,6 +100,9 @@ public class ChooseRadiusActivity extends AppCompatActivity  implements View.OnC
 
     private final int MENU_CODE = 1;
 
+    /**
+     * the first function to be entered when the app runs. includes variables setting.
+     */
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -157,6 +160,10 @@ public class ChooseRadiusActivity extends AppCompatActivity  implements View.OnC
         mapView.getMapAsync( ChooseRadiusActivity.this);
     }
 
+    /**
+     * this function is activated when one of the views that I set onclicklistener on is been clicked.
+     * @param view the view that was clicked
+     */
     @Override
     public void onClick(View view) {
         if (view == okButt){
@@ -171,6 +178,10 @@ public class ChooseRadiusActivity extends AppCompatActivity  implements View.OnC
         else if (view == cancleButt) finish();
     }
 
+    /**
+     * called automatically when the map (mapbox) is ready. includes style loading.
+     * @param mapboxMap a reference to the map which the function was called on
+     */
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public void onMapReady(@NonNull MapboxMap mapboxMap) {
@@ -279,11 +290,43 @@ public class ChooseRadiusActivity extends AppCompatActivity  implements View.OnC
         });
     }
 
+    /**
+     * called when the user chooses "ok" when the user didn't actively chose a radius but left it on the default ("all")
+     */
+    public void createRadiusDialog() {
+        final AlertDialog dialog = new AlertDialog.Builder(this).show();
+        dialog.setContentView(R.layout.save_radius_dialog);
+        dialog.findViewById(R.id.left_dialog_btn).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+                FirebaseDatabase.getInstance().getReference("users").child(currentUser._getDatabaseKey()).child("reportsRadius").setValue(0);
+                currentUser._setReportsRadius(0);
+                Toast.makeText(ChooseRadiusActivity.this, String.format("reports showing radius changed to %s", 0), Toast.LENGTH_LONG);
+                finish();
+            }
+        });
+        dialog.findViewById(R.id.right_dialog_btn).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+
+        try {
+            Looper.loop();
+        } catch (RuntimeException e) { }
+    }
+
+
+    /**
+     * this func adds the reports to the main map as markers colored by the report existence time
+     */
     public void addMarkers(@NonNull MapboxMap mapboxMap){
-    //    Marker marker = mapboxMap.addMarker(new MarkerOptions()
-    //            .icon(IconFactory.getInstance(ChooseRadiusActivity.this).fromResource(R.drawable.myloc_icon))
-    //            .position(myLatLng)
-    //            .title("me"));
+        //    Marker marker = mapboxMap.addMarker(new MarkerOptions()
+        //            .icon(IconFactory.getInstance(ChooseRadiusActivity.this).fromResource(R.drawable.myloc_icon))
+        //            .position(myLatLng)
+        //            .title("me"));
         DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference("reports");
         ValueEventListener reportListener = new ValueEventListener() {
             @RequiresApi(api = Build.VERSION_CODES.O)
@@ -312,35 +355,12 @@ public class ChooseRadiusActivity extends AppCompatActivity  implements View.OnC
         };
         mDatabase.addValueEventListener(reportListener);
     }
-
-    public void createRadiusDialog() {
-        final AlertDialog dialog = new AlertDialog.Builder(this).show();
-        dialog.setContentView(R.layout.save_radius_dialog);
-        dialog.findViewById(R.id.left_dialog_btn).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialog.dismiss();
-                FirebaseDatabase.getInstance().getReference("users").child(currentUser._getDatabaseKey()).child("reportsRadius").setValue(0);
-                currentUser._setReportsRadius(0);
-                Toast.makeText(ChooseRadiusActivity.this, String.format("reports showing radius changed to %s", 0), Toast.LENGTH_LONG);
-                finish();
-            }
-        });
-        dialog.findViewById(R.id.right_dialog_btn).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialog.dismiss();
-            }
-        });
-
-        try {
-            Looper.loop();
-        } catch (RuntimeException e) { }
-    }
-
 //================================================================================================
 // ===============================================================================================
 
+    /**
+     * map methods
+     */
     @SuppressWarnings( {"MissingPermission"})
     private void enableLocationComponent(@NonNull Style loadedMapStyle) {
 // Check if permissions are enabled and if not request
@@ -424,6 +444,30 @@ public class ChooseRadiusActivity extends AppCompatActivity  implements View.OnC
         mapView.onSaveInstanceState(outState);
     }
 
+
+    /**
+     * called when an intent that was started for activity result is finished.
+     * @param requestCode the code entered when the intent was started
+     * @param resultCode the result code of the intent
+     * @param data the data returned by the intent (if there was any)
+     */
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case MENU_CODE:
+                if (currentSession.isMenuActivityFinished()) {
+                    finish();
+                }
+        }
+    }
+
+
+    /**
+     * activate the option menu at the top of the screen
+     * @param menu the menu to activate
+     * @return true (the menu was activated successfully)
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();

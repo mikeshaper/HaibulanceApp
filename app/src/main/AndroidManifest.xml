@@ -28,11 +28,10 @@
         <activity android:name=".ShowRepRouteActivity"></activity>
         <activity android:name=".ShowStatReportActivity" />
         <activity android:name=".ShowStatisticsOnMapActivity" />
-        <activity android:name=".StatisticsActivity" />
+        <activity android:name=".AnalysisActivity" />
         <activity android:name=".FloraImgsActivity" />
         <activity android:name=".EditDetailsActivity" />
         <activity android:name=".UserDetailsActivity" />
-        <activity android:name=".TurfPhysicalCircleActivity" />
         <activity
             android:name=".ChooseRadiusActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
@@ -61,7 +60,6 @@
             android:name=".ReportActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:screenOrientation="portrait" />
-        <activity android:name=".GoogleMapsActivity" />
         <activity
             android:name=".RegisterActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"

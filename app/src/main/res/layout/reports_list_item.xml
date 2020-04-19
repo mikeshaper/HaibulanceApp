@@ -6,7 +6,7 @@
     style="@style/Base.Widget.AppCompat.ListMenuView"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    tools:context=".StatisticsActivity">
+    tools:context=".AnalysisActivity">
 
     <TextView
         android:id="@+id/item_report_name"

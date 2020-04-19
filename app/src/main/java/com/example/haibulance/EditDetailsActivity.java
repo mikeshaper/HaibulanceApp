@@ -22,6 +22,7 @@ import com.google.firebase.database.FirebaseDatabase;
 
 public class EditDetailsActivity extends AppCompatActivity implements View.OnClickListener {
 
+    private final int MENU_CODE = 1;
 
     private CurrentSession currentSession;
     private User currentUser;
@@ -34,11 +35,13 @@ public class EditDetailsActivity extends AppCompatActivity implements View.OnCli
     private Button changeRadBtn;
 
     private String previousEmail;
-
     private FirebaseAuth firebaseAuth;
 
     private ProgressDialog progressDialog;
 
+    /**
+     * the first function to be entered when the app runs. includes variables setting.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,6 +70,10 @@ public class EditDetailsActivity extends AppCompatActivity implements View.OnCli
         changeRadBtn.setOnClickListener(this);
     }
 
+    /**
+     * this function is activated when one of the views that I set onclicklistener on is been clicked.
+     * @param view the view that was clicked
+     */
     @Override
     public void onClick(View view) {
         if (view == updateBtn){
@@ -83,6 +90,9 @@ public class EditDetailsActivity extends AppCompatActivity implements View.OnCli
         }
     }
 
+    /**
+     * updates the user's details on firebase authentication
+     */
     public void updateDtails(){
         if (email.getText() == null) {
             Toast.makeText(EditDetailsActivity.this, "Please enter Email", Toast.LENGTH_LONG).show();
@@ -98,7 +108,7 @@ public class EditDetailsActivity extends AppCompatActivity implements View.OnCli
         }
 
         FirebaseUser user = firebaseAuth.getCurrentUser();
-        user.updatePassword("dfbdbfd534245")
+        user.updatePassword(password.getText().toString())
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
@@ -139,6 +149,9 @@ public class EditDetailsActivity extends AppCompatActivity implements View.OnCli
                 });
     }
 
+    /**
+     * updates the user's details on firebase database (after the authentication details were updated successfully)
+     */
     public void updateOnDatabase(){
         FirebaseDatabase.getInstance().getReference("users").child(currentUser._getDatabaseKey()).child("name").setValue(String.valueOf(name.getText()));
         FirebaseDatabase.getInstance().getReference("users").child(currentUser._getDatabaseKey()).child("email").setValue(String.valueOf(email.getText()));
@@ -146,7 +159,12 @@ public class EditDetailsActivity extends AppCompatActivity implements View.OnCli
         finish();
     }
 
-
+    /**
+     * called when an intent that was started for activity result is finished.
+     * @param requestCode the code entered when the intent was started
+     * @param resultCode the result code of the intent
+     * @param data the data returned by the intent (if there was any)
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -158,7 +176,11 @@ public class EditDetailsActivity extends AppCompatActivity implements View.OnCli
         }
     }
 
-    private final int MENU_CODE = 1;
+    /**
+     * activate the option menu at the top of the screen
+     * @param menu the menu to activate
+     * @return true (the menu was activated successfully)
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();

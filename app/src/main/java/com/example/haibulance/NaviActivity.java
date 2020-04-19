@@ -1,15 +1,11 @@
 package com.example.haibulance;
 
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -52,7 +48,6 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconImage;
 
 public class NaviActivity extends AppCompatActivity implements OnMapReadyCallback, PermissionsListener, View.OnClickListener {
 
-
     private MapView mapView;
     private Button startNaviBtn;
     private PermissionsManager permissionsManager;
@@ -64,6 +59,9 @@ public class NaviActivity extends AppCompatActivity implements OnMapReadyCallbac
     private MapboxNavigation navigation;
     private LatLng destination;
 
+    /**
+     * the first function to be entered when the app runs. includes variables setting.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -84,6 +82,22 @@ public class NaviActivity extends AppCompatActivity implements OnMapReadyCallbac
         destination = currentRep._getDestination();
     }
 
+    /**
+     * this function is activated when one of the views that I set onclicklistener on is been clicked.
+     * @param view the view that was clicked
+     */
+    @Override
+    public void onClick(View view) {
+        if (view == startNaviBtn){
+            if (currentRoute != null)
+                startNaivgation();
+        }
+    }
+
+    /**
+     * called automatically when the map (mapbox) is ready. includes style loading.
+     * @param mapboxMap a reference to the map which the function was called on
+     */
     @Override
     @SuppressWarnings( {"MissingPermission"})
     public void onMapReady(@NonNull MapboxMap mapboxMap) {
@@ -110,15 +124,9 @@ public class NaviActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
     }
 
-
-    @Override
-    public void onClick(View view) {
-        if (view == startNaviBtn){
-            if (currentRoute != null)
-                startNaivgation();
-        }
-    }
-
+    /**
+     * starts the mapbox navigation and update the relevant report details on database
+     */
     public void startNaivgation(){
         currentRep._setStatus("picked");
         LatLng hospitalLoc = new LatLng(32.0452857, 34.82474); ////המיקום של שער הספארי
@@ -139,7 +147,6 @@ public class NaviActivity extends AppCompatActivity implements OnMapReadyCallbac
         NavigationLauncher.startNavigation(NaviActivity.this, options);
     }
 
-
     private void addDestinationIconSymbolLayer(@NonNull Style loadedMapStyle) {
         loadedMapStyle.addImage("destination-icon-id",
                 BitmapFactory.decodeResource(this.getResources(), R.drawable.mapbox_marker_icon_default));
@@ -153,7 +160,6 @@ public class NaviActivity extends AppCompatActivity implements OnMapReadyCallbac
         );
         loadedMapStyle.addLayer(destinationSymbolLayer);
     }
-
 
     private void getRoute(Point orig, Point dest, Point rep){
         NavigationRoute.builder(NaviActivity.this)
@@ -189,6 +195,9 @@ public class NaviActivity extends AppCompatActivity implements OnMapReadyCallbac
 //==============================================================================================
 // ===============================================================================================
 
+    /**
+     * map methods
+     */
     @SuppressWarnings( {"MissingPermission"})
     private void enableLocationComponent(@NonNull Style loadedMapStyle) {
 // Check if permissions are enabled and if not request
@@ -271,39 +280,5 @@ public class NaviActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         mapView.onSaveInstanceState(outState);
-    }
-
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.items_menu, menu);
-        return true;
-    }
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()){
-            case R.id.home_button:
-                Intent intent = new Intent(this, MainActivity.class);
-                startActivity(intent);
-                finish();
-                return true;
-            case R.id.radius:
-                Intent intent1 = new Intent(this, ChooseRadiusActivity.class);
-                startActivity(intent1);
-                return true;
-            case R.id.more:
-                return true;
-            case R.id.detailsItem:
-                Intent intent2 = new Intent(this, UserDetailsActivity.class);
-                startActivity(intent2);
-                return true;
-            case R.id.edDetailsItem:
-                Intent intent3 = new Intent(this, EditDetailsActivity.class);
-                startActivity(intent3);
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
     }
 }

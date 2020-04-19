@@ -61,6 +61,8 @@ import retrofit2.Response;
 
 public class ChooseDestActivity extends AppCompatActivity implements  View.OnClickListener, OnMapReadyCallback, PermissionsListener {
 
+    private final int MENU_CODE = 1;
+
     private CurrentSession currentSession;
     private Report currentRep;
     private MapboxMap map;
@@ -72,9 +74,7 @@ public class ChooseDestActivity extends AppCompatActivity implements  View.OnCli
     private Button cancleBtn;
     private TextView destName;
     private AutoCompleteTextView autoCompleteDestName;
-
-
-    private LatLng dest;
+    private ProgressBar progressBar;
 
     private boolean choosed = false;
     private Geocoder geo;
@@ -82,17 +82,12 @@ public class ChooseDestActivity extends AppCompatActivity implements  View.OnCli
     private LatLng hospitalLoc = new LatLng(32.0452857, 34.82474); ////המיקום של שער הספארי
     private String addressToSearch;
     private Map<String, LatLng> placesDict;
-    private ProgressBar progressBar;
-
+    private LatLng dest;
     private String locnameStr;
 
-
-    private MapboxMap mapboxMap;
-    private Button chooseCityButton;
-    private EditText latEditText;
-    private EditText longEditText;
-    private TextView geocodeResultTextView;
-
+    /**
+     * the first function to be entered when the app runs. includes variables setting.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -126,6 +121,10 @@ public class ChooseDestActivity extends AppCompatActivity implements  View.OnCli
         cancleBtn.setOnClickListener(this);
     }
 
+    /**
+     * this function is activated when one of the views that I set onclicklistener on is been clicked.
+     * @param view the view that was clicked
+     */
     @Override
     public void onClick(View view) {
         if (view == okBtn){
@@ -144,6 +143,9 @@ public class ChooseDestActivity extends AppCompatActivity implements  View.OnCli
         }
     }
 
+    /**
+     * this func shows the auto fill destination names using Geocoder
+     */
     public void showOptions(){
         addressToSearch = String.valueOf(autoCompleteDestName.getText());
         if (addressToSearch == null) return;
@@ -161,12 +163,6 @@ public class ChooseDestActivity extends AppCompatActivity implements  View.OnCli
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-
-
-
-
-
 
         String[] names = placesDict.keySet().toArray(new String[placesDict.size()]);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>
@@ -196,6 +192,10 @@ public class ChooseDestActivity extends AppCompatActivity implements  View.OnCli
         });
     }
 
+    /**
+     * called automatically when the map (mapbox) is ready. includes style loading.
+     * @param mapboxMap a reference to the map which the function was called on
+     */
     @Override
     public void onMapReady(@NonNull MapboxMap mapboxMap) {
         map = mapboxMap;
@@ -244,38 +244,6 @@ public class ChooseDestActivity extends AppCompatActivity implements  View.OnCli
         });
     }
 
-
-    public void getLoc(){
-
-        MapboxGeocoding mapboxGeocoding = MapboxGeocoding.builder()
-                .accessToken(getString(R.string.access_token))
-                .query(addressToSearch)
-                .build();
-        mapboxGeocoding.enqueueCall(new Callback<GeocodingResponse>() {
-            @Override
-            public void onResponse(Call<GeocodingResponse> call, Response<GeocodingResponse> response) {
-                List<CarmenFeature> results = response.body().features();
-                if (results.size() > 0) {
-                    for (int i = 0; i < results.size() && placesDict.size() <= 5; i++) {
-                        CarmenFeature cf = results.get(i);
-                        //if in israel
-
-                        //placesDict.put(cf.placeName(), cf.center());
-                    }
-                } else {
-                    // No result for your request were found.
-                    Toast.makeText(ChooseDestActivity.this, "no matches", Toast.LENGTH_LONG).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<GeocodingResponse> call, Throwable throwable) {
-                throwable.printStackTrace();
-            }
-        });
-    }
-
-
     public String[] geoCodingFunc(String address){
         MapboxGeocoding mapboxGeocoding = MapboxGeocoding.builder()
                 .accessToken(getString(R.string.access_token))
@@ -322,6 +290,12 @@ public class ChooseDestActivity extends AppCompatActivity implements  View.OnCli
     }
 
 
+    /**
+     * adds a maker on map
+     * @param mapboxMap the map to add a marker on
+     * @param latLng the location of the marker
+     * @param Title the title of the marker
+     */
     public void addMarker(@NonNull MapboxMap mapboxMap, LatLng latLng, String Title) {
         mapboxMap.addMarker(new MarkerOptions()
                 .position(new LatLng(latLng.getLatitude(), latLng.getLongitude()))
@@ -374,6 +348,11 @@ public class ChooseDestActivity extends AppCompatActivity implements  View.OnCli
                 });
     }
 
+    /**
+     * checks if the chosen destination actually brings the report closer to the hospital
+     * @param dest the chosen destination's location
+     * @return if the chosen destination actually brings the report closer to the hospital
+     */
     public boolean isLegalDest(LatLng dest){
         float[] destToHospital = new float[1];
         Location.distanceBetween(dest.getLatitude(), dest.getLongitude(), hospitalLoc.getLatitude(), hospitalLoc.getLongitude(), destToHospital);
@@ -388,6 +367,10 @@ public class ChooseDestActivity extends AppCompatActivity implements  View.OnCli
 // ===============================================================================================
 // ===============================================================================================
 
+
+    /**
+     * map methods
+     */
     @SuppressWarnings( {"MissingPermission"})
     private void enableLocationComponent(@NonNull Style loadedMapStyle) {
 // Check if permissions are enabled and if not request
@@ -471,7 +454,28 @@ public class ChooseDestActivity extends AppCompatActivity implements  View.OnCli
         mapView.onSaveInstanceState(outState);
     }
 
+    /**
+     * called when an intent that was started for activity result is finished.
+     * @param requestCode the code entered when the intent was started
+     * @param resultCode the result code of the intent
+     * @param data the data returned by the intent (if there was any)
+     */
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case MENU_CODE:
+                if (currentSession.isMenuActivityFinished()) {
+                    finish();
+                }
+        }
+    }
 
+    /**
+     * activate the option menu at the top of the screen
+     * @param menu the menu to activate
+     * @return true (the menu was activated successfully)
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -482,27 +486,27 @@ public class ChooseDestActivity extends AppCompatActivity implements  View.OnCli
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()){
             case R.id.home_button:
-                Intent intent = new Intent(this, MainActivity.class);
-                startActivity(intent);
+                currentSession.setMenuActivityFinished(true);
                 finish();
                 return true;
             case R.id.radius:
                 Intent intent1 = new Intent(this, ChooseRadiusActivity.class);
-                startActivity(intent1);
+                startActivityForResult(intent1, MENU_CODE);
                 return true;
             case R.id.more:
                 return true;
             case R.id.detailsItem:
                 Intent intent2 = new Intent(this, UserDetailsActivity.class);
-                startActivity(intent2);
+                startActivityForResult(intent2, MENU_CODE);
                 return true;
             case R.id.edDetailsItem:
                 Intent intent3 = new Intent(this, EditDetailsActivity.class);
-                startActivity(intent3);
+                startActivityForResult(intent3, MENU_CODE);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
+
 
 }

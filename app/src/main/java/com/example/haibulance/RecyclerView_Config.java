@@ -11,6 +11,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
+/**
+ * this class is used to set recycler view (used in analysis activity)
+ */
 public class RecyclerView_Config {
     private Context mContext;
     private UsersAdapter mUsersAdapter;

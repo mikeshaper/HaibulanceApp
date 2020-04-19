@@ -14,7 +14,16 @@ public class User {
     private int pickups = 0;
     private int reports = 0;
     private DatabaseReference databaseUser;
+
+
+    /**
+     * no params constructor
+     */
     public User(){}
+
+    /**
+     * constructor that takes all the essential params
+     */
     public User(String name, String email, String password) {
         this.name = name;
         this.email = email;
@@ -22,12 +31,6 @@ public class User {
         this.reportsRadius = 0;
     }
 
-    public int getPickups() {
-        return pickups;
-    }
-    public int getReports() {
-        return reports;
-    }
     public void addPickup() {
         this.pickups++;
         databaseUser.child("pickups").setValue(pickups);
@@ -36,21 +39,38 @@ public class User {
         this.reports++;
         databaseUser.child("reports").setValue(reports);
     }
+
+    /**
+     * check if the given report is in the user's reports-show-radius
+     * @param rep the given report
+     * @param myLatLng device's location
+     * @return if the given report is in the user's reports-show-radius
+     */
+    public Boolean RepInRad(Report rep, LatLng myLatLng){
+        return (reportsRadius != 0 && rep.distanceFrom(myLatLng) < reportsRadius) || (reportsRadius == 0);
+    }
+
+    public int getPickups() {
+        return pickups;
+    }
     public void setPickups(int pickups) {
         this.pickups = pickups;
+    }
+    public int getReports() {
+        return reports;
     }
     public void setReports(int reports) {
         this.reports = reports;
     }
-    public void _setReportsRadius(int reportsRadius) {
-        this.reportsRadius = reportsRadius;
-        databaseUser.child("reportsRadius").setValue(reportsRadius);
+    public int getReportsRadius() {
+        return reportsRadius;
     }
     public void setReportsRadius(int reportsRadius) {
         this.reportsRadius = reportsRadius;
     }
-    public int getReportsRadius() {
-        return reportsRadius;
+    public void _setReportsRadius(int reportsRadius) {
+        this.reportsRadius = reportsRadius;
+        databaseUser.child("reportsRadius").setValue(reportsRadius);
     }
     public String getName() {
         return name;
@@ -76,9 +96,6 @@ public class User {
     public void setDatabaseKey(String databaseKey) {
         this.databaseKey = databaseKey;
         databaseUser = FirebaseDatabase.getInstance().getReference("users").child(databaseKey);
-    }
-    public Boolean RepInRad(Report rep, LatLng myLatLng){
-        return (reportsRadius != 0 && rep.distanceFrom(myLatLng) < reportsRadius) || (reportsRadius == 0);
     }
 
     public String ToString(){return String.format("name: %s, Email: %s, password: %s", name, email, password);}

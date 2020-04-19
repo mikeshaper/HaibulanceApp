@@ -18,6 +18,10 @@ public class RepTime {
     public RepTime() {
     }
 
+    /**
+     * constructor
+     * @param now
+     */
     @RequiresApi(api = Build.VERSION_CODES.O)
     public RepTime(LocalDateTime now) {
         this.minute = now.getMinute();
@@ -66,6 +70,9 @@ public class RepTime {
         return String.format("%s/%s/%s, %s:%s", day,month,year,hour,minstr);
     }
 
+    /**
+     * calculate the time passed till this moment (in hours)
+     */
     @RequiresApi(api = Build.VERSION_CODES.O)
     public float ageInHrs(){
         LocalDateTime other = LocalDateTime.now();

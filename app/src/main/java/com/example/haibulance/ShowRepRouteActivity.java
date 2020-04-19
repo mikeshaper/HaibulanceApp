@@ -47,6 +47,7 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconImage;
 
 public class ShowRepRouteActivity extends AppCompatActivity implements OnMapReadyCallback, PermissionsListener {
 
+    private final int MENU_CODE = 0;
 
     private MapView mapView;
     private PermissionsManager permissionsManager;
@@ -59,6 +60,10 @@ public class ShowRepRouteActivity extends AppCompatActivity implements OnMapRead
     private LatLng destination;
     private LatLng origin;
 
+
+    /**
+     * the first function to be entered when the app runs. includes variables setting.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,6 +81,10 @@ public class ShowRepRouteActivity extends AppCompatActivity implements OnMapRead
         origin = currentRep.getOgLocation();
     }
 
+    /**
+     * called automatically when the map (mapbox) is ready. includes style loading.
+     * @param mapboxMap a reference to the map which the function was called on
+     */
     @Override
     @SuppressWarnings( {"MissingPermission"})
     public void onMapReady(@NonNull MapboxMap mapboxMap) {
@@ -103,7 +112,6 @@ public class ShowRepRouteActivity extends AppCompatActivity implements OnMapRead
         });
     }
 
-
     private void addDestinationIconSymbolLayer(@NonNull Style loadedMapStyle) {
         loadedMapStyle.addImage("destination-icon-id",
                 BitmapFactory.decodeResource(this.getResources(), R.drawable.mapbox_marker_icon_default));
@@ -118,7 +126,11 @@ public class ShowRepRouteActivity extends AppCompatActivity implements OnMapRead
         loadedMapStyle.addLayer(destinationSymbolLayer);
     }
 
-
+    /**
+     * shows the report route on map
+     * @param orig the report origin (ogLocation)
+     * @param dest the new location after
+     */
     private void getRoute(Point orig, Point dest){
         NavigationRoute.builder(ShowRepRouteActivity.this)
                 .accessToken(getString(R.string.access_token))
@@ -152,6 +164,9 @@ public class ShowRepRouteActivity extends AppCompatActivity implements OnMapRead
 //==============================================================================================
 // ===============================================================================================
 
+    /**
+     * map methods
+     */
     @SuppressWarnings( {"MissingPermission"})
     private void enableLocationComponent(@NonNull Style loadedMapStyle) {
 // Check if permissions are enabled and if not request
@@ -236,7 +251,30 @@ public class ShowRepRouteActivity extends AppCompatActivity implements OnMapRead
         mapView.onSaveInstanceState(outState);
     }
 
+    /**
+     * called when an intent that was started for activity result is finished.
+     * @param requestCode the code entered when the intent was started
+     * @param resultCode the result code of the intent
+     * @param data the data returned by the intent (if there was any)
+     */
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case MENU_CODE:
+                if (currentSession.isMenuActivityFinished()) {
+                    currentSession.setMenuActivityFinished(false);
+                    currentSession.setOnRepActivity(false);
+                    finish();
+                }
+        }
+    }
 
+    /**
+     * activate the option menu at the top of the screen
+     * @param menu the menu to activate
+     * @return true (the menu was activated successfully)
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -247,23 +285,24 @@ public class ShowRepRouteActivity extends AppCompatActivity implements OnMapRead
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()){
             case R.id.home_button:
-                Intent intent = new Intent(this, MainActivity.class);
-                startActivity(intent);
+                //Intent intent = new Intent(this, MainActivity.class);
+                //startActivity(intent);
+                currentSession.setOnRepActivity(false);
                 finish();
                 return true;
             case R.id.radius:
                 Intent intent1 = new Intent(this, ChooseRadiusActivity.class);
-                startActivity(intent1);
+                startActivityForResult(intent1, MENU_CODE);
                 return true;
             case R.id.more:
                 return true;
             case R.id.detailsItem:
                 Intent intent2 = new Intent(this, UserDetailsActivity.class);
-                startActivity(intent2);
+                startActivityForResult(intent2, MENU_CODE);
                 return true;
             case R.id.edDetailsItem:
                 Intent intent3 = new Intent(this, EditDetailsActivity.class);
-                startActivity(intent3);
+                startActivityForResult(intent3, MENU_CODE);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

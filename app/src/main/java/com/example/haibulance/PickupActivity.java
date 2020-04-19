@@ -52,7 +52,6 @@ public class PickupActivity extends AppCompatActivity implements View.OnClickLis
     private static final int CHOOSE_DEST_CODE = 2;
     private final int MENU_CODE = 3;
 
-
     private MapView mapView;
     private PermissionsManager permissionsManager;
     private MapboxMap map;
@@ -67,7 +66,6 @@ public class PickupActivity extends AppCompatActivity implements View.OnClickLis
     private ProgressDialog progressDialog;
     private Bitmap bmp;
 
-
     // instance for firebase storage and StorageReference
     private FirebaseStorage storage;
     private StorageReference storageReference;
@@ -79,6 +77,10 @@ public class PickupActivity extends AppCompatActivity implements View.OnClickLis
     private DatabaseReference mDatabase;
     private FirebaseDatabase db;
 
+
+    /**
+     * the first function to be entered when the app runs. includes variables setting.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -114,7 +116,10 @@ public class PickupActivity extends AppCompatActivity implements View.OnClickLis
         setTexts();
     }
 
-
+    /**
+     * this function is activated when one of the views that I set onclicklistener on is been clicked.
+     * @param view the view that was clicked
+     */
     @Override
     public void onClick(View view) {
         if (view == pickup){
@@ -133,6 +138,10 @@ public class PickupActivity extends AppCompatActivity implements View.OnClickLis
         }
     }
 
+    /**
+     * called automatically when the map (mapbox) is ready. includes style loading.
+     * @param mapboxMap a reference to the map which the function was called on
+     */
     @Override
     public void onMapReady(@NonNull MapboxMap mapboxMap) {
         map = mapboxMap;
@@ -149,6 +158,9 @@ public class PickupActivity extends AppCompatActivity implements View.OnClickLis
         });
     }
 
+    /**
+     * opens the report's img for a larger view
+     */
     public void openIMGDialog() {
         final AlertDialog dialog = new AlertDialog.Builder(this)
                 .show();
@@ -165,6 +177,9 @@ public class PickupActivity extends AppCompatActivity implements View.OnClickLis
         });
     }
 
+    /**
+     * sets the report details on the textviews
+     */
     public void setTexts(){
         repTime.setText(repTime.getText() + rep.getTime());
         repSpecie.setText(repSpecie.getText() + rep.getSpecie());
@@ -172,11 +187,17 @@ public class PickupActivity extends AppCompatActivity implements View.OnClickLis
         locName.setText(rep.getLocationName());
     }
 
+    /**
+     * starts the choose destination activity
+     */
     public void chooseDest(){
         Intent intent = new Intent(this, ChooseDestActivity.class);
         startActivityForResult(intent, CHOOSE_DEST_CODE);
     }
 
+    /**
+     * sets the report img from firebase storage
+     */
     private void setImgBitmap(){
         if (!rep.getImgKey().equals("default")){
             StorageReference islandRef = storageReference.child("images/" + rep.getImgKey());
@@ -201,30 +222,12 @@ public class PickupActivity extends AppCompatActivity implements View.OnClickLis
             progressBar.setVisibility(View.GONE);
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        switch (requestCode) {
-            case CHOOSE_DEST_CODE:
-                if (rep._getDestination() != null){
-                    currentSession.getRep().setDestination(rep._getDestination());
-                    Intent intent = new Intent(this, NaviActivity.class);
-                    startActivity(intent);
-                    finish();
-                }
-            case NAVI_CODE:
-                if (rep.getStatus() == "picked") {
-                    rep._setLocation(rep._getDestination());
-                    finish();
-                }
-            case MENU_CODE:
-                if (currentSession.isMenuActivityFinished()) finish();
-        }
-    }
-
 //==============================================================================================
 // ===============================================================================================
 
+    /**
+     * map methods
+     */
     @SuppressWarnings( {"MissingPermission"})
     private void enableLocationComponent(@NonNull Style loadedMapStyle) {
 // Check if permissions are enabled and if not request
@@ -308,7 +311,38 @@ public class PickupActivity extends AppCompatActivity implements View.OnClickLis
         mapView.onSaveInstanceState(outState);
     }
 
+    /**
+     * called when an intent that was started for activity result is finished.
+     * @param requestCode the code entered when the intent was started
+     * @param resultCode the result code of the intent
+     * @param data the data returned by the intent (if there was any)
+     */
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case CHOOSE_DEST_CODE:
+                if (rep._getDestination() != null){
+                    currentSession.getRep().setDestination(rep._getDestination());
+                    Intent intent = new Intent(this, NaviActivity.class);
+                    startActivity(intent);
+                    finish();
+                }
+            case NAVI_CODE:
+                if (rep.getStatus() == "picked") {
+                    rep._setLocation(rep._getDestination());
+                    finish();
+                }
+            case MENU_CODE:
+                if (currentSession.isMenuActivityFinished()) finish();
+        }
+    }
 
+    /**
+     * activate the option menu at the top of the screen
+     * @param menu the menu to activate
+     * @return true (the menu was activated successfully)
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();

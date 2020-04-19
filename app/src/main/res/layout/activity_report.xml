@@ -131,4 +131,17 @@
         app:layout_constraintHorizontal_bias="0.131"
         app:layout_constraintStart_toStartOf="@+id/mini_map"
         app:layout_constraintTop_toBottomOf="@+id/mini_map" />
+
+    <Switch
+        android:id="@+id/anmlsAi_switch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginRight="32dp"
+        android:text="only aniomals search"
+        android:textColor="#FFFFFF"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/img_pickup" />
 </androidx.constraintlayout.widget.ConstraintLayout>

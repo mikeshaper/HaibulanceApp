@@ -3,7 +3,9 @@ package com.example.haibulance;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -36,12 +38,19 @@ import java.util.List;
 public class ShowStatisticsOnMapActivity extends AppCompatActivity implements OnMapReadyCallback, PermissionsListener {
 
     private final int SHOW_REP_CODE = 0;
+    private final int MENU_CODE = 1;
+
     private MapView mapView;
     private PermissionsManager permissionsManager;
     private MapboxMap map;
     private String requestedMonth;
     private String requestedYear;
     private CurrentSession currentSession;
+
+
+    /**
+     * the first function to be entered when the app runs. includes variables setting.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,6 +64,10 @@ public class ShowStatisticsOnMapActivity extends AppCompatActivity implements On
         mapView.getMapAsync( ShowStatisticsOnMapActivity.this);
     }
 
+    /**
+     * called automatically when the map (mapbox) is ready. includes style loading.
+     * @param mapboxMap a reference to the map which the function was called on
+     */
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public void onMapReady(@NonNull MapboxMap mapboxMap) {
@@ -72,6 +85,9 @@ public class ShowStatisticsOnMapActivity extends AppCompatActivity implements On
         });
     }
 
+    /**
+     * this func adds the reports to the main map as markers colored by the report status
+     */
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void addMarkers(){
         map.clear();
@@ -107,13 +123,14 @@ public class ShowStatisticsOnMapActivity extends AppCompatActivity implements On
         mDatabase.child(requestedMonth).addValueEventListener(reportListener);
     }
 
-
+    /**
+     * sets onMarkerClickListener for every marker on the map
+     */
     public void setOnMarkerClick(){
         map.setOnMarkerClickListener(new MapboxMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(@NonNull Marker marker) {
                 //int id = (int)marker.getId();
-                Log.d("zdcfvbz", "marker clicked");
                 DatabaseReference mDatabase;
                 LatLng latLng = marker.getPosition();
                 mDatabase = FirebaseDatabase.getInstance().getReference(String.format("reports/%s/%s", requestedYear, requestedMonth));
@@ -143,16 +160,9 @@ public class ShowStatisticsOnMapActivity extends AppCompatActivity implements On
         });
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        switch (requestCode) {
-            case SHOW_REP_CODE:
-                setOnMarkerClick();
-        }
-    }
-
-
+    /**
+     * map methods
+     */
     @SuppressWarnings( {"MissingPermission"})
     private void enableLocationComponent(@NonNull Style loadedMapStyle) {
 // Check if permissions are enabled and if not request
@@ -236,6 +246,67 @@ public class ShowStatisticsOnMapActivity extends AppCompatActivity implements On
         mapView.onSaveInstanceState(outState);
     }
 
+
+    /**
+     * called when an intent that was started for activity result is finished.
+     * @param requestCode the code entered when the intent was started
+     * @param resultCode the result code of the intent
+     * @param data the data returned by the intent (if there was any)
+     */
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case SHOW_REP_CODE:
+                setOnMarkerClick();
+            case MENU_CODE:
+                if (currentSession.isMenuActivityFinished()) {
+                    currentSession.setMenuActivityFinished(false);
+                    currentSession.setOnRepActivity(false);
+                    finish();
+                }
+        }
+    }
+
+
+    /**
+     * activate the option menu at the top of the screen
+     * @param menu the menu to activate
+     * @return true (the menu was activated successfully)
+     */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.items_menu, menu);
+        return true;
+    }
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.home_button:
+                //Intent intent = new Intent(this, MainActivity.class);
+                //startActivity(intent);
+                currentSession.setOnRepActivity(false);
+                finish();
+                return true;
+            case R.id.radius:
+                Intent intent1 = new Intent(this, ChooseRadiusActivity.class);
+                startActivityForResult(intent1, MENU_CODE);
+                return true;
+            case R.id.more:
+                return true;
+            case R.id.detailsItem:
+                Intent intent2 = new Intent(this, UserDetailsActivity.class);
+                startActivityForResult(intent2, MENU_CODE);
+                return true;
+            case R.id.edDetailsItem:
+                Intent intent3 = new Intent(this, EditDetailsActivity.class);
+                startActivityForResult(intent3, MENU_CODE);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 
     @Override
     public void onPointerCaptureChanged(boolean hasCapture) {

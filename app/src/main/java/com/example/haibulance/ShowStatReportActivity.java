@@ -74,6 +74,9 @@ public class ShowStatReportActivity extends AppCompatActivity implements View.On
     private DatabaseReference mDatabase;
     private FirebaseDatabase db;
 
+    /**
+     * the first function to be entered when the app runs. includes variables setting.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -110,7 +113,10 @@ public class ShowStatReportActivity extends AppCompatActivity implements View.On
         setTexts();
     }
 
-
+    /**
+     * this function is activated when one of the views that I set onclicklistener on is been clicked.
+     * @param view the view that was clicked
+     */
     @Override
     public void onClick(View view) {
         if (view == image) {
@@ -129,6 +135,10 @@ public class ShowStatReportActivity extends AppCompatActivity implements View.On
         }
     }
 
+    /**
+     * called automatically when the map (mapbox) is ready. includes style loading.
+     * @param mapboxMap a reference to the map which the function was called on
+     */
     @Override
     public void onMapReady(@NonNull MapboxMap mapboxMap) {
         map = mapboxMap;
@@ -145,6 +155,9 @@ public class ShowStatReportActivity extends AppCompatActivity implements View.On
         });
     }
 
+    /**
+     * opens the report's img for a larger view
+     */
     public void openIMGDialog() {
         final AlertDialog dialog = new AlertDialog.Builder(this)
                 .show();
@@ -161,6 +174,9 @@ public class ShowStatReportActivity extends AppCompatActivity implements View.On
         });
     }
 
+    /**
+     * sets the report details on the textviews
+     */
     public void setTexts(){
         repTime.setText(repTime.getText() + rep.getTime());
         repSpecie.setText(repSpecie.getText() + rep.getSpecie());
@@ -171,6 +187,9 @@ public class ShowStatReportActivity extends AppCompatActivity implements View.On
         if (rep.sameLoc(rep.getLocation(), rep.getOgLocation())) newLocName.setText("");
     }
 
+    /**
+     * sets the report img from firebase storage
+     */
     private void setImgBitmap(){
         if (!rep.getImgKey().equals("default")){
             StorageReference islandRef = storageReference.child("images/" + rep.getImgKey());
@@ -195,18 +214,13 @@ public class ShowStatReportActivity extends AppCompatActivity implements View.On
             progressBar.setVisibility(View.GONE);
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        switch (requestCode) {
-            case MENU_CODE:
-                if (currentSession.isMenuActivityFinished()) finish();
-        }
-    }
 
 //==============================================================================================
 // ===============================================================================================
 
+    /**
+     * map methods
+     */
     @SuppressWarnings( {"MissingPermission"})
     private void enableLocationComponent(@NonNull Style loadedMapStyle) {
 // Check if permissions are enabled and if not request
@@ -290,7 +304,26 @@ public class ShowStatReportActivity extends AppCompatActivity implements View.On
         mapView.onSaveInstanceState(outState);
     }
 
+    /**
+     * called when an intent that was started for activity result is finished.
+     * @param requestCode the code entered when the intent was started
+     * @param resultCode the result code of the intent
+     * @param data the data returned by the intent (if there was any)
+     */
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case MENU_CODE:
+                if (currentSession.isMenuActivityFinished()) finish();
+        }
+    }
 
+    /**
+     * activate the option menu at the top of the screen
+     * @param menu the menu to activate
+     * @return true (the menu was activated successfully)
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();

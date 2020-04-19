@@ -36,7 +36,9 @@ import java.text.DateFormatSymbols;
 import java.util.ArrayList;
 import java.util.List;
 
-public class StatisticsActivity extends AppCompatActivity implements View.OnClickListener {
+public class AnalysisActivity extends AppCompatActivity implements View.OnClickListener {
+
+    private final int MENU_CODE = 0;
 
     private RecyclerView mRecyclerView;
     private GraphView graph;
@@ -46,10 +48,16 @@ public class StatisticsActivity extends AppCompatActivity implements View.OnClic
     private DatabaseReference mDatabase;
     private Button showOnMapBtn;
 
+    private CurrentSession currentSession;
+
+    /**
+     * the first function to be entered when the app runs. includes variables setting.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_statistics);
+        currentSession = new CurrentSession();
         mRecyclerView = findViewById(R.id.recyclerview_reports);
         graph = findViewById(R.id.graphView);
         yearOptions = findViewById(R.id.year_spinner);
@@ -72,6 +80,24 @@ public class StatisticsActivity extends AppCompatActivity implements View.OnClic
         });
     }
 
+    @Override
+    public void onClick(View v) {
+        if (v == showOnMapBtn){
+            if (monthSelected == null){
+                Toast.makeText(AnalysisActivity.this, "please select a month", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            CurrentSession currentSession = new CurrentSession();
+            currentSession.setRequestedMonth(String.valueOf((int)(double)monthSelected));
+            currentSession.setRequestedYear(yearSelected);
+            Intent intent = new Intent(this, ShowStatisticsOnMapActivity.class);
+            startActivity(intent);
+        }
+    }
+
+    /**
+     * sets the spinner view to choose a year to show on the graph
+     */
     public void setSpinner(){
         ArrayList<String> years = new ArrayList<>();
         years.add("choose a year");
@@ -96,6 +122,9 @@ public class StatisticsActivity extends AppCompatActivity implements View.OnClic
         yearOptions.setAdapter(adapter);
     }
 
+    /**
+     * sets the graph view according to the selected year
+     */
     public void setGraph(){
         try {
             LineGraphSeries<DataPoint> series = new LineGraphSeries< >(new DataPoint[] {});
@@ -143,6 +172,9 @@ public class StatisticsActivity extends AppCompatActivity implements View.OnClic
         }
     }
 
+    /**
+     * sets the graph labels with the months from the database
+     */
     public void setGraphLables(){
         graph.getGridLabelRenderer().setLabelFormatter(new DefaultLabelFormatter(){
             @Override
@@ -159,12 +191,15 @@ public class StatisticsActivity extends AppCompatActivity implements View.OnClic
         });
     }
 
+    /**
+     * shows the reports of the selected month on the recycler view
+     */
     public void fillRecycler(){
         String path = String.format("reports/%s/%s", yearSelected, (int)(double)monthSelected);
         new FirebaseDatabaseHelper(path).readReports(new FirebaseDatabaseHelper.DataStatus() {
             @Override
             public void DataIsLoaded(List<Report> reports, List<String> keys) {
-                new ReportsRecyclerConfig().setmConfig(mRecyclerView, StatisticsActivity.this, reports, keys);
+                new ReportsRecyclerConfig().setmConfig(mRecyclerView, AnalysisActivity.this, reports, keys);
             }
             @Override
             public void DataIsInserted() {
@@ -180,22 +215,29 @@ public class StatisticsActivity extends AppCompatActivity implements View.OnClic
         });
     }
 
+
+    /**
+     * called when an intent that was started for activity result is finished.
+     * @param requestCode the code entered when the intent was started
+     * @param resultCode the result code of the intent
+     * @param data the data returned by the intent (if there was any)
+     */
     @Override
-    public void onClick(View v) {
-        if (v == showOnMapBtn){
-            if (monthSelected == null){
-                Toast.makeText(StatisticsActivity.this, "please select a month", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            CurrentSession currentSession = new CurrentSession();
-            currentSession.setRequestedMonth(String.valueOf((int)(double)monthSelected));
-            currentSession.setRequestedYear(yearSelected);
-            Intent intent = new Intent(this, ShowStatisticsOnMapActivity.class);
-            startActivity(intent);
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case MENU_CODE:
+                if (currentSession.isMenuActivityFinished()) {
+                    finish();
+                }
         }
     }
 
-
+    /**
+     * activate the option menu at the top of the screen
+     * @param menu the menu to activate
+     * @return true (the menu was activated successfully)
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();

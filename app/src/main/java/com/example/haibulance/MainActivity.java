@@ -81,6 +81,11 @@ import static com.mapbox.turf.TurfConstants.UNIT_METERS;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, OnMapReadyCallback, PermissionsListener, LocationListener {
 
+    private static final int RADIUS_CODE = 1;
+    private final int MENU_CODE = 2;
+    private final int REPORT_CODE = 3;
+
+
     private MapView mapView;
     private PermissionsManager permissionsManager;
     private MapboxMap map;
@@ -88,6 +93,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button report;
     private Button centerize;
     private ProgressBar progressBar;
+    private AdView mAdView;
 
 
     private boolean startPickup; //נועד לפתור בעיה של onDataChange (שלא ניתן לעשות finish() בתוכו)
@@ -113,10 +119,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private int circleRadius = 0;
     private String circleUnit = UNIT_METERS;
 
-    private static final int RADIUS_CODE = 1;
-    private final int MENU_CODE = 2;
-    private final int REPORT_CODE = 3;
 
+    /**
+     * the first function to be entered when the app runs. includes variables setting.
+     */
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -166,6 +172,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         myLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
     }
 
+    /**
+     * this function is activated when one of the views that I set onclicklistener on is been clicked.
+     * @param view the view that was clicked
+     */
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public void onClick(View view) {
@@ -184,14 +194,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         }
         else if (view == centerize){
-            if (true){//!isInTrackingMode) {
-                isInTrackingMode = true;
+            if (true){
                 locationComponent.setCameraMode(CameraMode.TRACKING);
                 locationComponent.zoomWhileTracking(16f);
             }
         }
     }
 
+    /**
+     * called automatically when the map (mapbox) is ready. includes style loading.
+     * @param mapboxMap a reference to the map which the function was called on
+     */
     @Override
     public void onMapReady(@NonNull MapboxMap mapboxMap) {
         map = mapboxMap;
@@ -289,6 +302,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
     }
 
+    /**
+     * this function is called when the user wants to report on an animal but there is already a close report to it.
+     * it asks the user if he mean the report that exists.
+     */
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void checkRepExists() {
         final boolean[] makeRep = {true};
@@ -335,49 +352,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mDatabase.addValueEventListener(findReportListener);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    public void checkRepExists2() {
-        final boolean[] makeRep = {true};
-        int year = LocalDateTime.now().getYear();
-        int month = LocalDateTime.now().getMonthValue();
-        mDatabase = FirebaseDatabase.getInstance().getReference("reports");
-        for (int i = month; i >= month-1; i--) {
-            int finalI = i;
-            ValueEventListener findReportListener = new ValueEventListener() {
-                @RequiresApi(api = Build.VERSION_CODES.M)
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    double lat = myLocation.getLatitude();
-                    double lon = myLocation.getLongitude();
-                    for (DataSnapshot ds : dataSnapshot.getChildren()) {
-                        Report rep = ds.getValue(Report.class);
-                        float[] distance = new float[1];
-                        LatLng repLoc = rep.getLocation();
-                        Location.distanceBetween(lat, lon, repLoc.getLatitude(), repLoc.getLongitude(), distance);
-                        if (distance[0] < 100 && !currentSession.isOnRepActivity() && rep.getStatus().equals("unpicked")) {
-                            Log.d("dclicked", "creating dialog.. " + distance[0]);
-                            if (!createCloseRepDialog(rep.ToString())) {
-                                makeRep[0] = false;
-                                return;
-                            }
-                        }
-                        if (finalI == month-1 && makeRep[0] && !currentSession.isOnRepActivity()) {
-                            Log.d("dclicked", "starting report...");
-                            currentSession.setOnRepActivity(true);
-                            Intent intent = new Intent(MainActivity.this, ReportActivity.class);
-                            startActivityForResult(intent, REPORT_CODE);
-                        }
-                    }
-                }
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
-                }
-            };
-            if (i == 0) { year--; mDatabase.child(String.valueOf(year)).child("12").addValueEventListener(findReportListener); }
-            else mDatabase.child(String.valueOf(year)).child(String.valueOf(i)).addValueEventListener(findReportListener);
-        }
-    }
-
+    /**
+     * a helper function that called by checkRepExists func. creates a dialog with the user.
+     * @param repTxt the string of the close report that already exists to put on the dialog.
+     * @return if the user said that he mean the report that exist or is it a new unreported one.
+     */
     public boolean createCloseRepDialog(String repTxt) {
         final boolean[] makeRep = {true};
         final Handler handler = new Handler() {
@@ -414,6 +393,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     LatLng hospitalLoc = new LatLng(32.0452857, 34.82474); ////המיקום של שער הספארי
+    /**
+     * this func adds the reports to the main map as markers colored by the report existence time
+     */
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void addMarkers(){
         map.clear();
@@ -452,6 +434,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    /**
+     * get user obj from the database (firebase) and put it in the CurrenSession as a static param
+     */
     public void getUserFromDatabase(){
         firebaseAuth = FirebaseAuth.getInstance();
         DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference();
@@ -531,7 +516,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
     }
 
-    private AdView mAdView;
+    /**
+     * sets the add view to show random adds provided by google
+     */
     public void setAdd(){
         MobileAds.initialize(this, "ca-app-pub-5099612993587566~7360269361");//"ca-app-pub-5099612993587566~7360269361");
         mAdView = findViewById(R.id.adView);
@@ -571,9 +558,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
     }
+
 //==============================================================================================
 // ===============================================================================================
 
+
+    /**
+     * map methods
+     */
+    private LocationComponent locationComponent;
     @SuppressWarnings( {"MissingPermission"})
     private void enableLocationComponent(@NonNull Style loadedMapStyle) {
 // Check if permissions are enabled and if not request
@@ -606,55 +599,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             permissionsManager.requestLocationPermissions(this);
         }
     }
-
-
-    private LocationComponent locationComponent;
-    private boolean isInTrackingMode;
-    @SuppressWarnings( {"MissingPermission"})
-    private void enableLocationComponent1(@NonNull Style loadedMapStyle) {
-        Log.d("MainActivity", "entered enableLocationComponent");
-// Check if permissions are enabled and if not request
-        if (PermissionsManager.areLocationPermissionsGranted(this)) {
-
-// Create and customize the LocationComponent's options
-            LocationComponentOptions customLocationComponentOptions = LocationComponentOptions.builder(this)
-                    .elevation(currentUser.getReportsRadius()*1000) //circleRadius)
-                    .accuracyAlpha(.6f)
-                    .accuracyColor(Color.GREEN)
-                    .build();
-
-// Get an instance of the component
-            locationComponent = map.getLocationComponent();
-
-            LocationComponentActivationOptions locationComponentActivationOptions =
-                    LocationComponentActivationOptions.builder(this, loadedMapStyle)
-                            .locationComponentOptions(customLocationComponentOptions)
-                            .build();
-
-// Activate with options
-            locationComponent.activateLocationComponent(locationComponentActivationOptions);
-
-// Enable to make component visible
-            locationComponent.setLocationComponentEnabled(true);
-
-// Set the component's camera mode
-            locationComponent.setCameraMode(CameraMode.TRACKING);
-
-// Set the component's render mode
-            locationComponent.setRenderMode(RenderMode.COMPASS);
-
-// Add the location icon click listener
-//            locationComponent.addOnLocationClickListener((OnLocationClickListener) MainActivity.this);
-
-// Add the camera tracking listener. Fires if the map camera is manually moved.
-//            locationComponent.addOnCameraTrackingChangedListener((OnCameraTrackingChangedListener) MainActivity.this);
-
-        } else {
-            permissionsManager = new PermissionsManager(this);
-            permissionsManager.requestLocationPermissions(this);
-        }
-    }
-
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         permissionsManager.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -722,6 +666,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mapView.onSaveInstanceState(outState);
     }
 
+    /**
+     * called when an intent that was started for activity result is finished.
+     * @param requestCode the code entered when the intent was started
+     * @param resultCode the result code of the intent
+     * @param data the data returned by the intent (if there was any)
+     */
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -739,6 +689,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
+    /**
+     * activate the option menu at the top of the screen
+     * @param menu the menu to activate
+     * @return true (the menu was activated successfully)
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -767,7 +722,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 startActivityForResult(intent3, MENU_CODE);
                 return true;
             case R.id.statistics:
-                Intent intent4 = new Intent(this, StatisticsActivity.class);
+                Intent intent4 = new Intent(this, AnalysisActivity.class);
                 startActivityForResult(intent4, MENU_CODE);
                 return true;
             default:
@@ -775,6 +730,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    /**
+     * this func just blocks back press as a way to close the app (i just hate it when my mom does it)
+     */
     @Override
     public void onBackPressed() {
     }
