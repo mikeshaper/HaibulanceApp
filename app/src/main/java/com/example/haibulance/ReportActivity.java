@@ -80,6 +80,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 
@@ -125,6 +126,7 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
     private FirebaseStorage storage;
     private StorageReference storageReference;
 
+    private FirebaseTranslator englishHebrewTranslator;
 
     /**
      * the first function to be entered when the app runs. includes variables setting.
@@ -169,12 +171,6 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
         specie.setOnClickListener(this);
         aiSwitch.setOnClickListener(this);
 
-        allAnimalsSpecies = getString(R.string.animals).split(" ");
-        adapter = new ArrayAdapter<String>
-                (ReportActivity.this, android.R.layout.select_dialog_item);
-        adapter.addAll(allAnimalsSpecies);
-        specie.setAdapter(adapter);
-
         latLng = new LatLng();
         LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -188,6 +184,8 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
         Location myLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         latLng.setLatitude(myLocation.getLatitude());
         latLng.setLongitude(myLocation.getLongitude());
+
+        setEnglishHebrewTranslator();
     }
 
     /**
@@ -385,43 +383,18 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
                                 if (isAnimal) onlyAnimalsAdapter.add(String.format("%s (%s)", text, confidence));
                                 Log.d("ai result: ", String.format("text: %s, entryid: %s, confi: %s", text, entityId, confidence));
                                 // Create an English-Hebrew translator:
-                                FirebaseTranslatorOptions options =
-                                        new FirebaseTranslatorOptions.Builder()
-                                                .setSourceLanguage(FirebaseTranslateLanguage.EN)
-                                                .setTargetLanguage(FirebaseTranslateLanguage.HE)
-                                                .build();
-
-                                final FirebaseTranslator englishHebrewTranslator =
-                                        FirebaseNaturalLanguage.getInstance().getTranslator(options);
-
-                                FirebaseModelDownloadConditions conditions = new FirebaseModelDownloadConditions.Builder()
-                                        .requireWifi()
-                                        .build();
-                                englishHebrewTranslator.downloadModelIfNeeded(conditions)
-                                        .addOnSuccessListener(
-                                                new OnSuccessListener<Void>() {
-                                                    @Override
-                                                    public void onSuccess(Void v) {
-                                                        // Model downloaded successfully. Okay to start translating.
-                                                        // (Set a flag, unhide the translation UI, etc.)
-                                                    }
-                                                })
-                                        .addOnFailureListener(
-                                                new OnFailureListener() {
-                                                    @Override
-                                                    public void onFailure(@NonNull Exception e) {
-                                                        // Model couldn’t be downloaded or other internal error.
-                                                        // ...
-                                                    }
-                                                });
-
+                                List<String> alreadyTranslated =  new LinkedList<String>(Arrays.asList());
                                 englishHebrewTranslator.translate(text)
                                         .addOnSuccessListener(
                                                 new OnSuccessListener<String>() {
                                                     @Override
                                                     public void onSuccess(@NonNull String translatedText) {
-                                                        if (isAnimal) onlyAnimalsAdapter.add(String.format("%s (%s)", translatedText, confidence));
-                                                        adapter.add(String.format("%s (%s)", translatedText, confidence));
+                                                        if (!alreadyTranslated.contains(translatedText)) {
+                                                            alreadyTranslated.add(translatedText);
+                                                            if (isAnimal)
+                                                                onlyAnimalsAdapter.add(String.format("%s (%s)", translatedText, confidence));
+                                                            adapter.add(String.format("%s (%s)", translatedText, confidence));
+                                                        }
                                                     }
                                                 })
                                         .addOnFailureListener(
@@ -458,7 +431,6 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
         }
     }
 
-
     /**
      * @param str the recognized object
      * @return if the object is animal
@@ -490,6 +462,68 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
                 mapboxMap.addMarker(new MarkerOptions()
                 .position(new LatLng(latLng.getLatitude(), latLng.getLongitude()))
                 .title("My location"));
+    }
+
+    /**
+     * sets the firebase translator and set the specie's adapter to all species in EN & HE
+     */
+    public void setEnglishHebrewTranslator(){
+        FirebaseTranslatorOptions options =
+                new FirebaseTranslatorOptions.Builder()
+                        .setSourceLanguage(FirebaseTranslateLanguage.EN)
+                        .setTargetLanguage(FirebaseTranslateLanguage.HE)
+                        .build();
+        englishHebrewTranslator =
+                FirebaseNaturalLanguage.getInstance().getTranslator(options);
+        FirebaseModelDownloadConditions conditions = new FirebaseModelDownloadConditions.Builder()
+                .requireWifi()
+                .build();
+        englishHebrewTranslator.downloadModelIfNeeded(conditions)
+                .addOnSuccessListener(
+                        new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void v) {
+                                // Model downloaded successfully. Okay to start translating.
+                                // (Set a flag, unhide the translation UI, etc.)
+                            }
+                        })
+                .addOnFailureListener(
+                        new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                // Model couldn’t be downloaded or other internal error.
+                                // ...
+                            }
+                        });
+
+        allAnimalsSpecies = getString(R.string.animals).split(" ");
+        onlyAnimalsAdapter = new ArrayAdapter<String>
+                (ReportActivity.this, android.R.layout.select_dialog_item);
+        onlyAnimalsAdapter.addAll(allAnimalsSpecies);
+        List<String> alreadyTranslated = new LinkedList<String>(Arrays.asList());
+        for (String specie: allAnimalsSpecies) {
+            englishHebrewTranslator.translate(specie)
+                    .addOnSuccessListener(
+                            new OnSuccessListener<String>() {
+                                @Override
+                                public void onSuccess(@NonNull String translatedText) {
+                                    String translatedTxt = translatedText;
+                                    if (!alreadyTranslated.contains(translatedTxt)) {
+                                        alreadyTranslated.add(translatedTxt);
+                                        onlyAnimalsAdapter.add(translatedTxt);
+                                    }
+                                }
+                            })
+                    .addOnFailureListener(
+                            new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    // Error.
+                                    // ...
+                                }
+                            });
+        }
+        specie.setAdapter(onlyAnimalsAdapter);
     }
 
     /**
@@ -529,7 +563,6 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
         switch (requestCode) {
             case CAMERA_REQUEST_CODE:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    //Toast.makeText(getApplicationContext(), "Permission Granted", Toast.LENGTH_SHORT).show();
                     if (!checkWStoragePermission())
                         requestWStoragePermission();
                     else
@@ -554,13 +587,11 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
                 break;
             case WSTORAGE_REQUEST_CODE:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    //Toast.makeText(getApplicationContext(), "Permission Granted", Toast.LENGTH_SHORT).show();
                     if (!checkRStoragePermission())
                         requestRStoragePermission();
                     else
                         takePic();
                 } else {
-                    //Toast.makeText(getApplicationContext(), "Permission Denied", Toast.LENGTH_SHORT).show();
                 }
                 break;
             case RSTORAGE_REQUEST_CODE:
@@ -568,7 +599,6 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
                     //Toast.makeText(getApplicationContext(), "Permission Granted", Toast.LENGTH_SHORT).show();
                     takePic();
                 } else {
-                    //Toast.makeText(getApplicationContext(), "Permission Denied", Toast.LENGTH_SHORT).show();
                 }
                 break;
             case LOCATION_REQUEST_CODE:
