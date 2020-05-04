@@ -372,6 +372,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void onClick(View v) {
                 dialog.dismiss();
                 makeRep[0] = false;
+                Toast.makeText(MainActivity.this, "thank you, but this is already reported", Toast.LENGTH_LONG).show();
                 handler.sendMessage(handler.obtainMessage());
             }
         });

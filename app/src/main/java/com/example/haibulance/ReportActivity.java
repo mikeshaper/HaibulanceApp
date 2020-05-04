@@ -114,6 +114,7 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
     private Uri imgUri;
     private String randID = UUID.randomUUID().toString();
     private String[] allAnimalsSpecies;
+    private File imgFile;
 
     private CurrentSession currentSession;
     private User currentUser;
@@ -304,6 +305,7 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
      * upload report and image to database
      */
     private void uploadData() {
+
         report = new Report(specie.getText().toString(), latLng, locnameStr, time, descriptoin.getText().toString(), currentUser.getName(), "unpicked", rawTime);
         report.setImgKey("default");
         currentSession.setRep(report);
@@ -328,6 +330,7 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
 
                             if (imgUri != null) {
                                 report.setImgKey(randID);
+                                imgFile.delete();
                                 writeToDatabase(report);
                             }
                         }
@@ -496,11 +499,11 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
                             }
                         });
 
-        allAnimalsSpecies = getString(R.string.animals).split(" ");
+        allAnimalsSpecies = namesStr.split("\n");//getString(R.string.animals).split(" ");
         onlyAnimalsAdapter = new ArrayAdapter<String>
                 (ReportActivity.this, android.R.layout.select_dialog_item);
         onlyAnimalsAdapter.addAll(allAnimalsSpecies);
-        List<String> alreadyTranslated = new LinkedList<String>(Arrays.asList());
+        List<String> alreadyTranslated = new LinkedList<String>(Arrays.asList(allAnimalsSpecies));
         for (String specie: allAnimalsSpecies) {
             englishHebrewTranslator.translate(specie)
                     .addOnSuccessListener(
@@ -751,7 +754,7 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
             case REQUEST_IMAGE_CAPTURE:
-                if (resultCode == RESULT_OK) {
+                if (resultCode == RESULT_OK && data != null) {
                     Bundle extras = data.getExtras();
                     Bitmap imageBitmap = (Bitmap) extras.get("data");
                     try{
@@ -761,20 +764,20 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
                         Integer counter = 0;
                         File directory = new File(path);
                         directory.mkdirs();
-                        File file = new File(path, String.format("IMG%d.jpg", counter)); // the File to save , append increasing numeric counter to prevent files from getting overwritten.
+                        imgFile = new File(path, String.format("IMG%d.jpg", counter)); // the File to save , append increasing numeric counter to prevent files from getting overwritten.
 
                         try {
-                            fOut = new FileOutputStream(file);
+                            fOut = new FileOutputStream(imgFile);
 
                         }
                         catch (FileNotFoundException fe){
                         }
                         imageBitmap.compress(Bitmap.CompressFormat.PNG, 100, fOut); // saving the Bitmap to a file compressed as a JPEG with 85% compression rate
-                        imgUri = Uri.fromFile(file);
+                        imgUri = Uri.fromFile(imgFile);
                         aiRecognition(imgUri);
                         fOut.flush(); // Not really required
                         fOut.close(); // do not forget to close the stream
-                        MediaStore.Images.Media.insertImage(getContentResolver(),file.getAbsolutePath(),file.getName(),file.getName());
+                        MediaStore.Images.Media.insertImage(getContentResolver(), imgFile.getAbsolutePath(), imgFile.getName(), imgFile.getName());
                     }
                     catch (IOException e){
                         Log.d("creating uri failed", e.toString());

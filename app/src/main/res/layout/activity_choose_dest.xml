@@ -45,6 +45,7 @@
         android:ems="10"
         android:hint="Address"
         android:paddingLeft="16dp"
+        android:paddingRight="16dp"
         app:layout_constraintBottom_toTopOf="@+id/choose_dest_map"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

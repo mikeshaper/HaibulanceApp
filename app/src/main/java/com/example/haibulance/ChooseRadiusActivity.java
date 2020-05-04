@@ -186,7 +186,6 @@ public class ChooseRadiusActivity extends AppCompatActivity  implements View.OnC
     @Override
     public void onMapReady(@NonNull MapboxMap mapboxMap) {
         map = mapboxMap;
-
         mapboxMap.setStyle(new Style.Builder().fromUri(Style.MAPBOX_STREETS)
                 .withImage(CIRCLE_CENTER_ICON_ID, BitmapUtils.getBitmapFromDrawable(
                         getResources().getDrawable(R.drawable.blue_marker)))
@@ -202,11 +201,12 @@ public class ChooseRadiusActivity extends AppCompatActivity  implements View.OnC
             @Override
             public void onStyleLoaded(@NonNull Style style) {
                 enableLocationComponent(style);
-                initPolygonCircleFillLayer();
+
                 GeoJsonSource geoJsonSource = new GeoJsonSource("circle-source",
                         Point.fromLngLat(32.0452857, 34.82474));
                 style.addSource(geoJsonSource);
 
+                initPolygonCircleFillLayer();
                 CircleLayer circleLayer = new CircleLayer("circle-layer", "circle-source");
                 circleLayer.setProperties(
                         PropertyFactory.visibility(Property.VISIBLE),

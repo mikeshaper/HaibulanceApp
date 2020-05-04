@@ -121,7 +121,7 @@
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="@+id/showRep_status_txt"
         app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="@+id/showRep_status_txt"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/showRep_status_txt" />
 
     <TextView
