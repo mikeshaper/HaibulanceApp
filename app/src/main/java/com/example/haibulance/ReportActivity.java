@@ -108,7 +108,6 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
     private String locnameStr;
     private Geocoder geo;
     private LatLng latLng;
-    private String time;
     private RepTime rawTime;
     // Uri indicates where the image will be picked from
     private Uri imgUri;
