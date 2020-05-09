@@ -98,7 +98,10 @@ public class ShowStatReportActivity extends AppCompatActivity implements View.On
         progressDialog = new ProgressDialog(this);
 
         //if (rep.sameLoc(rep.getLocation(), rep.getOgLocation())) showNewLocBtn.setVisibility(View.GONE);
-        if (rep.getStatus() != "picked") showNewLocBtn.setVisibility(View.GONE);
+        if (!rep.getStatus().equals("picked")) {
+            showNewLocBtn.setVisibility(View.GONE);
+            Log.d("rep stat", String.valueOf(rep.getStatus()));
+        }
         else showNewLocBtn.setOnClickListener(this);
         // get the Firebase storage reference
         storage = FirebaseStorage.getInstance();

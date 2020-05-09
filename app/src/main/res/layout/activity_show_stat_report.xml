@@ -41,7 +41,7 @@
         app:srcCompat="@drawable/animal_icon" />
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/registration_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
@@ -60,7 +60,7 @@
         android:layout_marginTop="60dp"
         android:text="סוג החיה: "
         android:textColor="#FFFFFF"
-        android:textSize="24sp"
+        android:textSize="18sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.86"
@@ -74,7 +74,7 @@
         android:layout_marginTop="16dp"
         android:text="מועד הדיווח: "
         android:textColor="#FFFFFF"
-        android:textSize="24sp"
+        android:textSize="18sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="@+id/showRep_specie_txt"
         app:layout_constraintHorizontal_bias="1.0"
@@ -88,7 +88,7 @@
         android:layout_marginTop="16dp"
         android:text="תיאור המצב: "
         android:textColor="#FFFFFF"
-        android:textSize="24sp"
+        android:textSize="18sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="@+id/showRep_time_txt"
         app:layout_constraintHorizontal_bias="1.0"
@@ -103,7 +103,7 @@
         android:layout_marginTop="16dp"
         android:text="סטטוס: "
         android:textColor="#FFFFFF"
-        android:textSize="24sp"
+        android:textSize="18sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="@+id/showRep_desc_txt"
         app:layout_constraintHorizontal_bias="0.966"
@@ -117,11 +117,11 @@
         android:layout_marginTop="16dp"
         android:text="מיקום לאחר איסוף: "
         android:textColor="#FFFFFF"
-        android:textSize="24sp"
+        android:textSize="18sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="@+id/showRep_status_txt"
         app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/showRep_status_txt"
         app:layout_constraintTop_toBottomOf="@+id/showRep_status_txt" />
 
     <TextView

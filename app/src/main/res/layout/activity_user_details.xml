@@ -13,8 +13,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
-        android:fontFamily="casual"
-        android:text="User Details"
+        android:text="פרטי משתמש"
         android:textColor="#FFFFFF"
         android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -26,12 +25,12 @@
         android:id="@+id/dtails_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="92dp"
-        android:text="name: "
+        android:layout_marginTop="72dp"
+        android:text="שם: "
         android:textColor="#FFFFFF"
         android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.047"
+        app:layout_constraintHorizontal_bias="0.912"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/details_title" />
 
@@ -40,11 +39,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
-        android:text="email: "
+        android:text="אימייל: "
         android:textColor="#FFFFFF"
         android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="@+id/dtails_name"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="@+id/dtails_name"
         app:layout_constraintTop_toBottomOf="@+id/dtails_name" />
 
@@ -53,11 +52,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
-        android:text="password: "
+        android:text="סיסמה: "
         android:textColor="#FFFFFF"
         android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="@+id/dtails_email"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="@+id/dtails_email"
         app:layout_constraintTop_toBottomOf="@+id/dtails_email" />
 
@@ -66,11 +65,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
-        android:text="number of reports: "
+        android:text="מספר דיווחים: "
         android:textColor="#FFFFFF"
         android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="@+id/dtails_password"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="@+id/dtails_password"
         app:layout_constraintTop_toBottomOf="@+id/dtails_password" />
 
@@ -79,11 +78,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
-        android:text="number of pickups: "
+        android:text="מספר איסופים: "
         android:textColor="#FFFFFF"
         android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="@+id/dtails_numofreps"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="@+id/dtails_numofreps"
         app:layout_constraintTop_toBottomOf="@+id/dtails_numofreps" />
 
@@ -92,11 +91,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
-        android:text="reports show radius: "
+        android:text="טווח הצגת התראות: "
         android:textColor="#FFFFFF"
         android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="@+id/dtails_numofpickups"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="@+id/dtails_numofpickups"
         app:layout_constraintTop_toBottomOf="@+id/dtails_numofpickups" />
 
@@ -104,12 +103,12 @@
         android:id="@+id/dtails_edit_btn"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="156dp"
-        android:text="Edit Details"
+        android:layout_marginBottom="116dp"
         android:background="@drawable/button_rounded"
+        android:text="שינוי פרטים"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.52"
+        app:layout_constraintHorizontal_bias="0.54"
         app:layout_constraintStart_toStartOf="parent" />
 
 

@@ -14,7 +14,7 @@
         android:layout_marginTop="24dp"
         android:background="@drawable/edtxt_rounded"
         android:ems="10"
-        android:hint="Password"
+        android:hint="סיסמה"
         android:inputType="textPassword"
         android:paddingLeft="16dp"
         android:paddingRight="16dp"
@@ -22,27 +22,6 @@
         app:layout_constraintStart_toStartOf="@+id/login_email_edtxt"
         app:layout_constraintTop_toBottomOf="@+id/login_email_edtxt" />
 
-    <Button
-        android:id="@+id/login_button_reg"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        android:background="@drawable/button_rounded"
-        android:text="Login"
-        app:layout_constraintEnd_toEndOf="@+id/login_password_edtxt"
-        app:layout_constraintStart_toStartOf="@+id/login_password_edtxt"
-        app:layout_constraintTop_toBottomOf="@+id/login_password_edtxt" />
-
-    <TextView
-        android:id="@+id/back_to_reg_textView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        android:text="Go back to registery"
-        android:textColor="#C3FFFFFF"
-        app:layout_constraintEnd_toEndOf="@+id/login_button_reg"
-        app:layout_constraintStart_toStartOf="@+id/login_button_reg"
-        app:layout_constraintTop_toBottomOf="@+id/login_button_reg" />
 
     <EditText
         android:id="@+id/login_email_edtxt"
@@ -55,25 +34,46 @@
         android:layout_marginRight="32dp"
         android:background="@drawable/edtxt_rounded"
         android:ems="10"
+        android:hint="אימייל"
         android:inputType="textEmailAddress"
         android:paddingLeft="16dp"
         android:paddingRight="16dp"
-        android:hint="Email"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+    <Button
+        android:id="@+id/login_button_reg"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:background="@drawable/button_rounded"
+        android:text="כניסה"
+        app:layout_constraintEnd_toEndOf="@+id/login_password_edtxt"
+        app:layout_constraintStart_toStartOf="@+id/login_password_edtxt"
+        app:layout_constraintTop_toBottomOf="@+id/login_password_edtxt" />
 
     <TextView
-        android:id="@+id/textView2"
+        android:id="@+id/back_to_reg_textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:text="חזרה להרשמה"
+        android:textColor="#C3FFFFFF"
+        app:layout_constraintEnd_toEndOf="@+id/login_button_reg"
+        app:layout_constraintStart_toStartOf="@+id/login_button_reg"
+        app:layout_constraintTop_toBottomOf="@+id/login_button_reg" />
+
+
+    <TextView
+        android:id="@+id/login_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="177dp"
         android:layout_marginLeft="177dp"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="32dp"
         android:layout_marginEnd="176dp"
         android:layout_marginRight="176dp"
-        android:fontFamily="casual"
-        android:text="LOGIN"
+        android:text="כניסה"
         android:textColor="#FFFFFF"
         android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"

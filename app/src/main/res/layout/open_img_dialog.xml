@@ -18,7 +18,7 @@
         android:layout_gravity="center_vertical|center_horizontal"
         android:layout_marginTop="10dp"
         android:background="@drawable/button_rounded"
-        android:text="OK"
+        android:text="סגור"
         android:textColor="#ffffff"
         android:textSize="30sp" />
 

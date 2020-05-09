@@ -1,5 +1,6 @@
 package com.example.haibulance;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
@@ -31,6 +32,7 @@ public class UserDetailsActivity extends AppCompatActivity implements View.OnCli
     /**
      * the first function to be entered when the app runs. includes variables setting.
      */
+    @SuppressLint({"DefaultLocale", "SetTextI18n"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,7 +54,11 @@ public class UserDetailsActivity extends AppCompatActivity implements View.OnCli
         password.setText(password.getText() + currentUser.getPassword());
         numofreps.setText(String.format("%s%d", numofreps.getText(), currentUser.getReports()));
         numofpicks.setText(String.format("%s%d", numofpicks.getText(), currentUser.getPickups()));
-        radius.setText(String.format("%s%dm", radius.getText(), currentUser.getReportsRadius()));
+        if (currentUser.getReportsRadius() == 0){
+            radius.setText(String.format("%s%s", radius.getText(), "all"));
+        }
+        else radius.setText(String.format("%s%dm", radius.getText(), currentUser.getReportsRadius()));
+
 
         editBtn.setOnClickListener(this);
     }
