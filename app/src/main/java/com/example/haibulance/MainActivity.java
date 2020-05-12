@@ -20,7 +20,10 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -391,6 +394,54 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return makeRep[0];
     }
 
+
+    /**
+     * a function called to check if a user is an admin (with a password) to enter analysis activity
+     */
+    public void createAdminDialog() {
+        final AlertDialog dialog = new AlertDialog.Builder(this).show();
+        dialog.setContentView(R.layout.admin_dialog);
+        Window window = dialog.getWindow();
+        window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
+        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+        final String[] validPassword = {""};
+        mDatabase = FirebaseDatabase.getInstance().getReference("AdminPassword");
+        ValueEventListener findReportListener = new ValueEventListener() {
+            @RequiresApi(api = Build.VERSION_CODES.M)
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                validPassword[0] = dataSnapshot.getValue(String.class);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+            }
+        };
+        mDatabase.addValueEventListener(findReportListener);
+        dialog.findViewById(R.id.left_dialog_btn).setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+            @Override
+            public void onClick(View v) {
+                EditText passordEdTxt = dialog.findViewById(R.id.admin_password);
+                String password = passordEdTxt.getText().toString();
+                if (password.equals(validPassword[0])){
+                    Intent intent = new Intent(MainActivity.this, AnalysisActivity.class);
+                    startActivityForResult(intent, MENU_CODE);
+                }
+                else {
+                    Log.d("dsfdg", validPassword[0]);
+                    Toast.makeText(MainActivity.this, "incorrect password", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+        dialog.findViewById(R.id.right_dialog_btn).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+    }
+
     LatLng hospitalLoc = new LatLng(32.0452857, 34.82474); ////המיקום של שער הספארי
     /**
      * this func adds the reports to the main map as markers colored by the report existence time
@@ -695,7 +746,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.items_menu, menu);
+        inflater.inflate(R.menu.items_menu_with_analysis, menu);
         return true;
     }
     @Override
@@ -719,9 +770,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Intent intent3 = new Intent(this, EditDetailsActivity.class);
                 startActivityForResult(intent3, MENU_CODE);
                 return true;
-            case R.id.statistics:
-                Intent intent4 = new Intent(this, AnalysisActivity.class);
-                startActivityForResult(intent4, MENU_CODE);
+            case R.id.analysis:
+                createAdminDialog();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
