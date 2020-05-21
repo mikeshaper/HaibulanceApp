@@ -430,7 +430,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 else {
                     Log.d("dsfdg", validPassword[0]);
-                    Toast.makeText(MainActivity.this, "incorrect password", Toast.LENGTH_LONG).show();
+                    Toast.makeText(MainActivity.this, "incorrect password", Toast.LENGTH_SHORT).show();
                 }
             }
         });

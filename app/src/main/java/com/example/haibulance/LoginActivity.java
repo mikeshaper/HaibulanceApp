@@ -128,14 +128,13 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     public void createLoginAsDialog() {
         final AlertDialog dialog = new AlertDialog.Builder(LoginActivity.this)
                 .show();
-        dialog.setContentView(R.layout.enter_as_dialog);
+        dialog.setContentView(R.layout.login_as_dialog);
         TextView t = dialog.findViewById(R.id.login_as);
         t.setText(String.format("Login as: %s?", firebaseAuth.getCurrentUser().getEmail()));
         dialog.findViewById(R.id.left_dialog_btn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 dialog.dismiss();
-                Toast.makeText(LoginActivity.this, String.format("hello %s!", firebaseAuth.getCurrentUser().getEmail()), Toast.LENGTH_SHORT).show();
                 login();
             }
         });

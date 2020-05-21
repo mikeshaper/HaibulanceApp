@@ -197,14 +197,13 @@ public class RegisterActivity extends FragmentActivity implements View.OnClickLi
     public void createLoginAsDialog() {
         final AlertDialog dialog = new AlertDialog.Builder(RegisterActivity.this)
                 .show();
-        dialog.setContentView(R.layout.enter_as_dialog);
+        dialog.setContentView(R.layout.login_as_dialog);
         TextView t = dialog.findViewById(R.id.login_as);
         t.setText("Login as: " + firebaseAuth.getCurrentUser().getEmail() +"?");
         dialog.findViewById(R.id.left_dialog_btn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 dialog.dismiss();
-                Toast.makeText(RegisterActivity.this, "hello " + firebaseAuth.getCurrentUser().getEmail() + "!", Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
                 startActivity(intent);
                 finish();

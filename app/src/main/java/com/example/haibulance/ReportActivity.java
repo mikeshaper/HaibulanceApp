@@ -330,7 +330,8 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
 
                             if (imgUri != null) {
                                 report.setImgKey(randID);
-                                imgFile.delete();
+                                if (imgFile != null)
+                                    imgFile.delete();
                                 writeToDatabase(report);
                             }
                         }
@@ -1406,6 +1407,7 @@ public class ReportActivity extends AppCompatActivity implements View.OnClickLis
                     "Tuatara\n" +
                     "Turkey\n" +
                     "Turkish Angora\n" +
+                    "Turtle\n" +
                     "Uakari\n" +
                     "Uguisu\n" +
                     "Umbrellabird\n" +

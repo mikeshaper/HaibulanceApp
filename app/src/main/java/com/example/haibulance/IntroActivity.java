@@ -12,7 +12,7 @@ import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-public class EntranceActivity extends AppCompatActivity {
+public class IntroActivity extends AppCompatActivity {
 
     Handler handler;
     ImageView haibuIcon;
@@ -20,10 +20,10 @@ public class EntranceActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_entrance);
+        setContentView(R.layout.activity_intro);
         handler = new Handler();
         haibuIcon = findViewById(R.id.haibuIcon);
-        animateImage(2000, haibuIcon);
+        animateImage(1000, haibuIcon);
         startRegiActivity(2000);
     }
 
@@ -31,7 +31,7 @@ public class EntranceActivity extends AppCompatActivity {
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                startActivity(new Intent(EntranceActivity.this, RegisterActivity.class));
+                startActivity(new Intent(IntroActivity.this, RegisterActivity.class));
                 finish();
             }
         }, duration);
